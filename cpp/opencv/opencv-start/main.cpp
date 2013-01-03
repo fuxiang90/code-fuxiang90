@@ -1,17 +1,42 @@
-#include "cv.h"
-#include "highgui.h"
+#include "fImgFeature.h"
+#include "fImgSvm.h"
 int main()
 {
-	IplImage* pImg;
-	pImg = cvLoadImage("./cat.jpg", 1);
+    string name = "cat.jpg";
+    //fImgFeature * ftest = new fImgFeature(name);
 
-	cvNamedWindow("Image", 1);
-	cvShowImage("Image", pImg);
+    //ftest->Test();
 
-	cvWaitKey(0);
+   fImgSvm * fsvm = new fImgSvm();
+   fsvm->PreProcess("imgfile");
 
-	cvDestroyWindow("Image");
-	cvReleaseImage(&pImg);
+//    ifstream  fin( "1.feature" );
+//    int n ;
+//    int m = SIFTN;
+//    fin>>n>>m;
+//
+//    double d = 0.0;
+//    vector <vector <double > > data;
+//    for(int i = 0  ; i < n ; i ++){
+//        vector<double > temp;
+//        for(int j = 0 ; j < m ; j ++){
+//                fin>>d;
+//                temp.push_back(d);
+//        }
+//        data.push_back(temp);
+//    }
+
+//
+//	IplImage* pImg;
+//	pImg = cvLoadImage("./cat.jpg", 1);
+//
+//	cvNamedWindow("Image", 1);
+//	cvShowImage("Image", pImg);
+//
+//	cvWaitKey(0);
+//
+//	cvDestroyWindow("Image");
+	//cvReleaseImage(&pImg);
 
 	return 0;
 }
