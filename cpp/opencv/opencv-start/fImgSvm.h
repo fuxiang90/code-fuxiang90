@@ -28,21 +28,24 @@ private:
     int32_t mwordnum;
     int32_t mimgsum ;
     map < int ,vector< double > > dictmap;
-    vector < vector <double > > imgvec;
+    vector< vector <double > > imgvec;
+    vector< vector<double > > imgtestvec;
+    vector < int32_t > labtestvec;
     vector< int32_t >  imglabelvec;
     vector < int32_t > labvec;
 
-    int createFeatureFile(string dirname);
+    int createFeatureFile(string dirname ,int flag = 1);
 
     void createFeatureDict();
 
     //把图像向量化
-    void vectorImg();
+    void vectorImg(string subpath,vector< vector<double > >  &test ,vector < int32_t > & lab);
 
     void getDictFile();
     int getNearVec(vector<double > &dvec);
     void test_libsvm();
     void test_libsvm2();
+    void getTestImg(vector< vector<double > >  &test);
 };
 
 

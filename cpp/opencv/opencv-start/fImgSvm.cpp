@@ -1,5 +1,7 @@
 #include"fImgSvm.h"
 
+
+static string grootpath = "/home/fuxiang/code-fuxiang90/cpp/opencv/opencv-start/";
 extern void print_message(FILE* target, const char* str)
 {
 	fprintf(target, "%s", str);
@@ -7,17 +9,17 @@ extern void print_message(FILE* target, const char* str)
 
 void fImgSvm::PreProcess(string dirname)
 {
-    createFeatureFile(dirname);
+    createFeatureFile(dirname,1);
+    createFeatureFile("test",2);
     createFeatureDict();
-    vectorImg();
+    vectorImg("feature",imgvec ,imglabelvec);
     //test_libsvm();
     test_libsvm2();
 
-
-
 }
-int fImgSvm::createFeatureFile(string dirname)
+int fImgSvm::createFeatureFile(string dirname ,int flag)
 {
+    chdir(grootpath.c_str());
     DIR *dp;
     struct dirent *entry;
     struct stat statbuf;
@@ -44,10 +46,12 @@ int fImgSvm::createFeatureFile(string dirname)
             mimgsum ++;
             string storefilename = filename.substr(0 , filename.find(".jpg") - 0);
             storefilename = storefilename + ".feature";
-            mfimgfeature.StoreImgSift(filename , "../feature/"+storefilename);
+            if(flag == 2)
+                mfimgfeature.StoreImgSift(filename , "../testfeature/"+storefilename);
+            else
+                mfimgfeature.StoreImgSift(filename , "../feature/"+storefilename);
 
             printf("%s\n",  entry->d_name);
-
         }
     }
 
@@ -87,14 +91,14 @@ void fImgSvm::createFeatureDict()
         }
     }
     int nfeature = featurevec.size();
-    imglabelvec.assign(nfeature+1,0);
+   // imglabelvec.assign(nfeature+1,0);
     //double (*pszDiscriptor)[SIFTN] = new double[nfeature][SIFTN];
-    double pszDiscriptor[nfeature][SIFTN] ;
-//    double **pszDiscriptor;
-//    *pszDiscriptor = (double * ) malloc(nfeature * sizeof(double *));
-//    for(int i = 0 ; i < nfeature ; i ++){
-//        *(pszDiscriptor + i) = (double *) malloc(sizeof(double) * SIFTN );
-//    }
+    //double pszDiscriptor[nfeature][SIFTN] ;
+    double **pszDiscriptor;
+    *pszDiscriptor = (double * ) malloc(nfeature * sizeof(double *));
+    for(int i = 0 ; i < nfeature ; i ++){
+        *(pszDiscriptor + i) = (double *) malloc(sizeof(double) * SIFTN );
+    }
     for (int i = 0; i < nfeature; ++i)  {
         for (int j = 0; j < SIFTN; j++) {
             pszDiscriptor[i][j] = featurevec[i][j];
@@ -126,32 +130,35 @@ void fImgSvm::createFeatureDict()
 //    }
 }
 
-void fImgSvm::vectorImg()
+/*
+把一个目录下的所有feature 向量化
+*/
+void fImgSvm::vectorImg(string subpath , vector< vector<double > >  & imgfeaturevec,vector < int32_t > & lab)
 {
     printf("------------img vector-------------------------\n");
-    static char * dirname = "/home/fuxiang/code-fuxiang90/cpp/opencv/opencv-start/feature";
+    string dirname = grootpath + subpath;
     DIR *dp;
     struct dirent *entry;
     struct stat statbuf;
-    chdir("/home/fuxiang/code-fuxiang90/cpp/opencv/opencv-start");
+    chdir(grootpath.c_str());
 
 
 
-    imgvec.resize(mimgsum);
+    imgfeaturevec.resize(mimgsum);
     int indexid = -1;
 
     for(int i = 0 ; i < imgvec.size()  ; i ++){
-        imgvec[i].assign(mwordnum ,0);
+        imgfeaturevec[i].assign(mwordnum ,0);
     }
-      if( (dp = opendir( "/home/fuxiang/code-fuxiang90/cpp/opencv/opencv-start/feature" ) ) == NULL ) {
-        fprintf(stderr, "cannot open directory: %s\n", dirname);
+      if( (dp = opendir( dirname.c_str() ) ) == NULL ) {
+        fprintf(stderr, "cannot open directory: %s\n", dirname.c_str() );
         //return ;
     }
 
     //double darray[SIFTN] ;
 
     int imgid = 0;
-    chdir(dirname);
+    chdir(dirname.c_str());
     while( (entry = readdir(dp)) != NULL) {
         if( S_ISDIR(statbuf.st_mode)  && (strcmp(".." , entry->d_name) ==0) ) {
             continue;
@@ -166,7 +173,7 @@ void fImgSvm::vectorImg()
             if(pos == -1 )
                 continue;
             indexid = filename[0] -'0' - 1;
-            imglabelvec[imgid ] = indexid;
+            lab.push_back(indexid);
             vector <vector <double > > vec;
 
             mfimgfeature.getSiftFeatureFile(filename ,vec);
@@ -174,7 +181,7 @@ void fImgSvm::vectorImg()
             int len = vec.size();
             for(int i = 0 ; i < len ;  i ++){
                 int t = getNearVec(vec[i]);
-                imgvec[imgid][t] ++;
+                imgfeaturevec[imgid][t] ++;
             }
             imgid ++ ;
 
@@ -182,10 +189,11 @@ void fImgSvm::vectorImg()
         }
     }
 
-    ofstream fout("imgvector");
+    string outfilename = subpath+"vector";
+    ofstream fout(outfilename.c_str() );
     for(int i = 0 ; i < mimgsum ; i ++){
         for(int j = 0 ; j < mwordnum ; j ++){
-            fout << imgvec[i][j] <<" ";
+            fout << imgfeaturevec[i][j] <<" ";
         }
         fout << endl;
     }
@@ -301,8 +309,7 @@ void fImgSvm::test_libsvm2()
 	CLabels* labels=new CBinaryLabels(lab);
 
 	// create train features
-	CDenseFeatures<float64_t>* features=new CDenseFeatures<float64_t>(
-			feature_cache);
+	CDenseFeatures<float64_t>* features=new CDenseFeatures<float64_t>(feature_cache);
 	SG_REF(features);
 	features->set_feature_matrix(feat);
 
@@ -329,10 +336,39 @@ void fImgSvm::test_libsvm2()
 				out_labels->get_confidence(i));
 	}
 
+    CBinaryLabels* result = CBinaryLabels::obtain_from_generic (svm->apply(features) );
+    for (int32_t i=0; i<3; i++)
+                SG_SPRINT("output[%d]=%f\n", i, result->get_label(i));
+
+    // update
+    // predict the
+    printf("----------------test -----------------\n");
+    int32_t testnum = 1;
+    getTestImg(imgtestvec);
+    SGMatrix<float64_t> testfeat(dims, testnum);
+
+    for(int i = 0 ; i < testnum ; i ++ ){
+        for(int j = 0 ; j < dims ; j ++ ){
+            testfeat(j,i) = imgtestvec[i][j];
+        }
+	}
+
+    CDenseFeatures<float64_t>* testfeatures=new CDenseFeatures<float64_t>(feature_cache);
+	SG_REF(testfeatures);
+	testfeatures->set_feature_matrix(testfeat);
+    CBinaryLabels* testresult = CBinaryLabels::obtain_from_generic (svm->apply(testfeatures) );
+     for (int32_t i=0; i<testnum; i++)
+              SG_SPRINT("output[%d]=%f\n", i, testresult->get_label(i));
+
 	SG_UNREF(out_labels);
 	SG_UNREF(kernel);
 	SG_UNREF(features);
 	SG_UNREF(svm);
 
 	exit_shogun();
+}
+
+void fImgSvm::getTestImg(vector< vector<double > >  &test)
+{
+    vectorImg("testfeature",test,labtestvec);
 }
