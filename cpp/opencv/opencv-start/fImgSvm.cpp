@@ -43,7 +43,6 @@ int fImgSvm::createFeatureFile(string dirname ,int flag)
 
             if(pos == -1 )
                 continue;
-            mimgsum ++;
             string storefilename = filename.substr(0 , filename.find(".jpg") - 0);
             storefilename = storefilename + ".feature";
             if(flag == 2)
@@ -93,12 +92,12 @@ void fImgSvm::createFeatureDict()
     int nfeature = featurevec.size();
    // imglabelvec.assign(nfeature+1,0);
     //double (*pszDiscriptor)[SIFTN] = new double[nfeature][SIFTN];
-    //double pszDiscriptor[nfeature][SIFTN] ;
-    double **pszDiscriptor;
-    *pszDiscriptor = (double * ) malloc(nfeature * sizeof(double *));
-    for(int i = 0 ; i < nfeature ; i ++){
-        *(pszDiscriptor + i) = (double *) malloc(sizeof(double) * SIFTN );
-    }
+    double pszDiscriptor[nfeature][SIFTN] ;
+//    double **pszDiscriptor;
+//    *pszDiscriptor = (double * ) malloc(nfeature * sizeof(double *));
+//    for(int i = 0 ; i < nfeature ; i ++){
+//        *(pszDiscriptor + i) = (double *) malloc(sizeof(double) * SIFTN );
+//    }
     for (int i = 0; i < nfeature; ++i)  {
         for (int j = 0; j < SIFTN; j++) {
             pszDiscriptor[i][j] = featurevec[i][j];
@@ -144,21 +143,33 @@ void fImgSvm::vectorImg(string subpath , vector< vector<double > >  & imgfeature
 
 
 
-    imgfeaturevec.resize(mimgsum);
-    int indexid = -1;
 
-    for(int i = 0 ; i < imgvec.size()  ; i ++){
-        imgfeaturevec[i].assign(mwordnum ,0);
-    }
-      if( (dp = opendir( dirname.c_str() ) ) == NULL ) {
+    if( (dp = opendir( dirname.c_str() ) ) == NULL ) {
         fprintf(stderr, "cannot open directory: %s\n", dirname.c_str() );
         //return ;
     }
+    int imgcount = 0;
+    while( (entry = readdir(dp)) != NULL){
+        string filestr = entry->d_name;
+        if(filestr.find(".feature") != -1) imgcount ++;
+    }
+    if(subpath == "feature") fImgSvm::mtrainimgsum  = imgcount;
+    else fImgSvm::mtestingsum  = imgcount;
+    imgfeaturevec.resize(imgcount);
+    int indexid = -1;
 
+    for(int i = 0 ; i < imgfeaturevec.size()  ; i ++){
+        imgfeaturevec[i].assign(mwordnum ,0);
+    }
     //double darray[SIFTN] ;
 
     int imgid = 0;
     chdir(dirname.c_str());
+
+    if( (dp = opendir( dirname.c_str() ) ) == NULL ) {
+        fprintf(stderr, "cannot open directory: %s\n", dirname.c_str() );
+        //return ;
+    }
     while( (entry = readdir(dp)) != NULL) {
         if( S_ISDIR(statbuf.st_mode)  && (strcmp(".." , entry->d_name) ==0) ) {
             continue;
@@ -191,7 +202,7 @@ void fImgSvm::vectorImg(string subpath , vector< vector<double > >  & imgfeature
 
     string outfilename = subpath+"vector";
     ofstream fout(outfilename.c_str() );
-    for(int i = 0 ; i < mimgsum ; i ++){
+    for(int i = 0 ; i < imgcount ; i ++){
         for(int j = 0 ; j < mwordnum ; j ++){
             fout << imgfeaturevec[i][j] <<" ";
         }
@@ -285,7 +296,7 @@ void fImgSvm::test_libsvm2()
 	const float64_t svm_C=10;
 	const float64_t svm_eps=0.001;
 
-	int32_t num=mimgsum;
+	int32_t num=mtrainimgsum;
 	int32_t dims=SIFTN;
 	float64_t dist=0.5;
 
@@ -371,4 +382,22 @@ void fImgSvm::test_libsvm2()
 void fImgSvm::getTestImg(vector< vector<double > >  &test)
 {
     vectorImg("testfeature",test,labtestvec);
+}
+
+void fImgSvm::Work()
+{
+    string dir = grootpath+"feature";
+    chdir(dir.c_str());
+    ifstream fin("dict");
+    for(int i = 0 ; i < mwordnum ; i ++ ){
+        vector<double > dvec;
+        for(int j = 0 ; j < SIFTN ; j ++ ){
+            double d;
+            fin>> d;
+            dvec.push_back(d);
+        }
+        dictmap.insert( map<int ,vector<double > >::value_type(i ,dvec ));
+    }
+    vectorImg("feature",imgvec ,imglabelvec);
+    test_libsvm2();
 }

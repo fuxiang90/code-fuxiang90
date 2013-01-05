@@ -16,17 +16,19 @@ const int rows = 128;
 class fImgSvm
 {
 public:
-    fImgSvm():mwordnum(500),mimgsum(0){}
+    fImgSvm():mwordnum(500),mtrainimgsum(0),mtestingsum(0){}
     //打开file 目录下的文件，然后取出所有的jpg
     //生成feature
     //并生成字典
     //img向量化
     //得到每一类的训练向量
     void PreProcess(string file);
+    void Work();
 private:
     fImgFeature mfimgfeature;
     int32_t mwordnum;
-    int32_t mimgsum ;
+    int32_t mtrainimgsum ;
+    int32_t mtestingsum;
     map < int ,vector< double > > dictmap;
     vector< vector <double > > imgvec;
     vector< vector<double > > imgtestvec;

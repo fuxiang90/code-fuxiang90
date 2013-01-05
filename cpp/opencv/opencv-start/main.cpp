@@ -6,9 +6,14 @@ int main()
     //fImgFeature * ftest = new fImgFeature(name);
 
     //ftest->Test();
-
-   fImgSvm * fsvm = new fImgSvm();
-   fsvm->PreProcess("imgfile");
+    int i;
+    cout << "input for 1 ,run work:" ;
+    cin>>i;
+    fImgSvm * fsvm = new fImgSvm();
+    if(i == 1)
+        fsvm->Work();
+    else
+        fsvm->PreProcess("imgfile");
 
 //    ifstream  fin( "1.feature" );
 //    int n ;
