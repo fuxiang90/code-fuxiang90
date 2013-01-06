@@ -48,6 +48,8 @@ private:
     void test_libsvm();
     void test_libsvm2();
     void getTestImg(vector< vector<double > >  &test);
+
+    bool kmeans(SGMatrix<float64_t> &data ,  CDenseFeatures<float64_t>*  &centers , int32_t numfeatures);
 };
 
 

@@ -92,31 +92,48 @@ void fImgSvm::createFeatureDict()
     int nfeature = featurevec.size();
    // imglabelvec.assign(nfeature+1,0);
     //double (*pszDiscriptor)[SIFTN] = new double[nfeature][SIFTN];
-    double pszDiscriptor[nfeature][SIFTN] ;
+//    double pszDiscriptor[nfeature][SIFTN] ;
+
+
 //    double **pszDiscriptor;
-//    *pszDiscriptor = (double * ) malloc(nfeature * sizeof(double *));
+//    pszDiscriptor = (double ** ) malloc(nfeature * sizeof(double *));
 //    for(int i = 0 ; i < nfeature ; i ++){
-//        *(pszDiscriptor + i) = (double *) malloc(sizeof(double) * SIFTN );
+//        double *temp = NULL;
+//        temp = (double *) malloc(sizeof(double) * SIFTN );
+//        if(temp == NULL){
+//            printf("malloc error\n");
+//            return ;
+//        }
+//        *(pszDiscriptor + i) = temp;
 //    }
+//    for (int i = 0; i < nfeature; ++i)  {
+//        for (int j = 0; j < SIFTN; j++) {
+//            pszDiscriptor[i][j] = featurevec[i][j];
+//        }
+//    }
+
+    SGMatrix<float64_t> data(SIFTN, nfeature) ;
     for (int i = 0; i < nfeature; ++i)  {
         for (int j = 0; j < SIFTN; j++) {
-            pszDiscriptor[i][j] = featurevec[i][j];
+            data(j ,i) = featurevec[i][j];
         }
     }
 
-    int cnClusterNumber = mwordnum;
-    CvMat *pszLabels = cvCreateMat(nfeature, 1, CV_32SC1);
-    CvMat szSamples, *pszClusterCenters ;
-    pszClusterCenters =  cvCreateMat(cnClusterNumber, SIFTN, CV_32FC1);
-    cvInitMatHeader ( &szSamples,nfeature,SIFTN, CV_32FC1, pszDiscriptor);
-    cvKMeans2(&szSamples, cnClusterNumber, pszLabels,cvTermCriteria( CV_TERMCRIT_EPS+CV_TERMCRIT_ITER, 10, 1.0 ),1, (CvRNG *)0, 0, pszClusterCenters);
+    CDenseFeatures<float64_t>* centers;
+    kmeans(data,centers,nfeature);
+//    int cnClusterNumber = mwordnum;
+//    CvMat *pszLabels = cvCreateMat(nfeature, 1, CV_32SC1);
+//    CvMat szSamples, *pszClusterCenters ;
+//    pszClusterCenters =  cvCreateMat(cnClusterNumber, SIFTN, CV_32FC1);
+//    cvInitMatHeader ( &szSamples,nfeature,SIFTN, CV_32FC1, pszDiscriptor);
+//    cvKMeans2(&szSamples, cnClusterNumber, pszLabels,cvTermCriteria( CV_TERMCRIT_EPS+CV_TERMCRIT_ITER, 10, 1.0 ),1, (CvRNG *)0, 0, pszClusterCenters);
     //cvKMeans2(&szSamples, cnClusterNumber, pszLabels, pszClusterCenters);
     ofstream fout("dict");
-    for(int i = 0 ; i < cnClusterNumber ; i ++) {
+    for(int i = 0 ; i < mwordnum ; i ++) {
         vector<double > d ;
         for(int j = 0 ; j < SIFTN ; j ++) {
-            fout << pszClusterCenters->data.fl[i *(SIFTN) + j] << " " ;
-            d.push_back(pszClusterCenters->data.fl[i *(SIFTN) + j]);
+            fout << data(j,i) << " " ;
+            d.push_back(data(j,i) );
         }
         dictmap.insert( map<int ,vector<double> >::value_type(i ,d) );
 
@@ -183,7 +200,7 @@ void fImgSvm::vectorImg(string subpath , vector< vector<double > >  & imgfeature
             int pos =  filename.find(".feature") ;
             if(pos == -1 )
                 continue;
-            indexid = filename[0] -'0' - 1;
+            indexid = filename[0] -'0' ;
             lab.push_back(indexid);
             vector <vector <double > > vec;
 
@@ -354,8 +371,9 @@ void fImgSvm::test_libsvm2()
     // update
     // predict the
     printf("----------------test -----------------\n");
-    int32_t testnum = 1;
+
     getTestImg(imgtestvec);
+    int32_t testnum = mtestingsum;
     SGMatrix<float64_t> testfeat(dims, testnum);
 
     for(int i = 0 ; i < testnum ; i ++ ){
@@ -368,8 +386,18 @@ void fImgSvm::test_libsvm2()
 	SG_REF(testfeatures);
 	testfeatures->set_feature_matrix(testfeat);
     CBinaryLabels* testresult = CBinaryLabels::obtain_from_generic (svm->apply(testfeatures) );
-     for (int32_t i=0; i<testnum; i++)
-              SG_SPRINT("output[%d]=%f\n", i, testresult->get_label(i));
+    int32_t numright = 0;
+    for (int32_t i=0; i<testnum; i++){
+         SG_SPRINT("output[%d]=%f\n", i, testresult->get_label(i));
+         if(labtestvec[i] == 1 && testresult->get_label(i) < 0.0){
+            numright ++;
+         }else if(labtestvec[i] == 2 && testresult->get_label(i) > 0.0){
+            numright ++ ;
+         }
+     }
+
+     printf(" %lf\n ",numright*1.0 / testnum);
+
 
 	SG_UNREF(out_labels);
 	SG_UNREF(kernel);
@@ -400,4 +428,63 @@ void fImgSvm::Work()
     }
     vectorImg("feature",imgvec ,imglabelvec);
     test_libsvm2();
+}
+
+bool fImgSvm::kmeans(SGMatrix<float64_t> &data ,  CDenseFeatures<float64_t>*  &centers ,int32_t num_features)
+{
+    init_shogun(&print_message);
+
+
+	int32_t num_clusters= mwordnum ;
+
+
+	int32_t dim_features=SIFTN;
+
+	float64_t cluster_std_dev=2.0;
+
+	/* build random cluster centers */
+	SGMatrix<float64_t> cluster_centers(dim_features, num_clusters);
+	SGVector<float64_t>::random_vector(cluster_centers.matrix, dim_features*num_clusters,
+			0, 20.0);
+	//SGMatrix<float64_t>::display_matrix(cluster_centers.matrix, cluster_centers.num_rows,
+	//		cluster_centers.num_cols, "cluster centers");
+
+
+
+
+	/* create features, SG_REF to avoid deletion */
+	CDenseFeatures<float64_t>* features=new CDenseFeatures<float64_t> ();
+	features->set_feature_matrix(data);
+	SG_REF(features);
+
+	/* create labels for cluster centers */
+	CMulticlassLabels* labels=new CMulticlassLabels(num_features);
+	for (index_t i=0; i<num_features; ++i)
+		labels->set_label(i, 0);
+
+	/* create distance */
+	CEuclideanDistance* distance=new CEuclideanDistance(features, features);
+
+	/* create distance machine */
+	CKMeans* clustering=new CKMeans(num_clusters, distance);
+	clustering->train(features);
+
+	/* build clusters */
+//	CMulticlassLabels* result=CMulticlassLabels::obtain_from_generic(clustering->apply());
+//	for (index_t i=0; i<result->get_num_labels(); ++i)
+//		SG_SPRINT("cluster index of vector %i: %f\n", i, result->get_label(i));
+
+	/* print cluster centers */
+    centers = (CDenseFeatures<float64_t>*)distance->get_lhs();
+
+	SGMatrix<float64_t> centers_matrix=centers->get_feature_matrix();
+
+
+	//SG_UNREF(result);
+	SG_UNREF(centers);
+	SG_UNREF(clustering);
+	SG_UNREF(labels);
+	SG_UNREF(features);
+
+	exit_shogun();
 }

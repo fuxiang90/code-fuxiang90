@@ -5,7 +5,9 @@
 #include <fstream>
 #include <vector>
 #include <string>
-#include <math.h>
+#include <cmath>
+#include <cstdlib>
+#include <cstdio>
 #include <cv.h>
 #include <highgui.h>
 
