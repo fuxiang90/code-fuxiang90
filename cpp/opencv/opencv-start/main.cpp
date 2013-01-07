@@ -6,6 +6,7 @@ int main()
     //fImgFeature * ftest = new fImgFeature(name);
 
     //ftest->Test();
+
     int i;
     cout << "input for 1 ,run work:" ;
     cin>>i;

@@ -36,6 +36,7 @@ private:
     vector< int32_t >  imglabelvec;
     vector < int32_t > labvec;
 
+
     int createFeatureFile(string dirname ,int flag = 1);
 
     void createFeatureDict();

@@ -34,6 +34,7 @@ int main()
 {
 
     ifstream fin("knapsack2.txt");
+
     int n ;
     fin>> weightsum >> n;
     for(int i = 1 ; i <= n ; i ++){

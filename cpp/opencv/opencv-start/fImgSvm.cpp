@@ -204,6 +204,7 @@ void fImgSvm::vectorImg(string subpath , vector< vector<double > >  & imgfeature
             lab.push_back(indexid);
             vector <vector <double > > vec;
 
+
             mfimgfeature.getSiftFeatureFile(filename ,vec);
 
             int len = vec.size();
