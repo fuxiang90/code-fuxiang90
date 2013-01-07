@@ -40,7 +40,4 @@ using namespace shogun;
 
 
 
-
-
-
 #endif // FSTD_H_INCLUDED

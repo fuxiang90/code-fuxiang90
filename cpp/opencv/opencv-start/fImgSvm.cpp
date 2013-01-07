@@ -121,6 +121,7 @@ void fImgSvm::createFeatureDict()
 
     CDenseFeatures<float64_t>* centers;
     kmeans(data,centers,nfeature);
+
 //    int cnClusterNumber = mwordnum;
 //    CvMat *pszLabels = cvCreateMat(nfeature, 1, CV_32SC1);
 //    CvMat szSamples, *pszClusterCenters ;
@@ -141,9 +142,8 @@ void fImgSvm::createFeatureDict()
     }
     fout.close();
 
-//    for(int i = 0 ; i < nfeature ; i ++){
-//        free (*(pszDiscriptor + i) ) ;
-//    }
+    SG_UNREF(data);
+    SG_UNREF(centers);
 }
 
 /*
@@ -387,17 +387,25 @@ void fImgSvm::test_libsvm2()
 	SG_REF(testfeatures);
 	testfeatures->set_feature_matrix(testfeat);
     CBinaryLabels* testresult = CBinaryLabels::obtain_from_generic (svm->apply(testfeatures) );
-    int32_t numright = 0;
+    int32_t rightnum1 = 0;
+    int32_t rightsum1 = 0;
+    int32_t rightnum2 = 0;
     for (int32_t i=0; i<testnum; i++){
          SG_SPRINT("output[%d]=%f\n", i, testresult->get_label(i));
-         if(labtestvec[i] == 1 && testresult->get_label(i) < 0.0){
-            numright ++;
+         if(labtestvec[i] == 1  ){
+            if( (testresult->get_label(i))  < 0.0){
+                rightnum1 ++;
+            }
+            rightsum1 ++ ;
          }else if(labtestvec[i] == 2 && testresult->get_label(i) > 0.0){
-            numright ++ ;
+            rightnum2 ++ ;
          }
      }
 
-     printf(" %lf\n ",numright*1.0 / testnum);
+     printf(" %lf\n ",(rightnum1+rightnum2)*1.0 / testnum);
+     printf("class 1 : %lf\n",rightnum1 *1.0 / rightsum1);
+     printf("class 2 : %lf\n",rightnum2 *1.0 / (testnum -  rightsum1));
+
 
 
 	SG_UNREF(out_labels);
