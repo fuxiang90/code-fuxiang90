@@ -2,17 +2,21 @@
 
 
 static string grootpath = "/home/fuxiang/code-fuxiang90/cpp/opencv/opencv-start/";
+
 extern void print_message(FILE* target, const char* str)
 {
-	fprintf(target, "%s", str);
+    fprintf(target, "%s", str);
 }
+fImgSvm:: ~fImgSvm()
+{
 
+}
 void fImgSvm::PreProcess(string dirname)
 {
     createFeatureFile(dirname,1);
     createFeatureFile("test",2);
     createFeatureDict();
-    vectorImg("feature",imgvec ,imglabelvec);
+    vectorImg("feature",imgvec ,imgtrainlabelvec);
     //test_libsvm();
     test_libsvm2();
 
@@ -90,7 +94,7 @@ void fImgSvm::createFeatureDict()
         }
     }
     int nfeature = featurevec.size();
-   // imglabelvec.assign(nfeature+1,0);
+    // imglabelvec.assign(nfeature+1,0);
     //double (*pszDiscriptor)[SIFTN] = new double[nfeature][SIFTN];
 //    double pszDiscriptor[nfeature][SIFTN] ;
 
@@ -142,8 +146,8 @@ void fImgSvm::createFeatureDict()
     }
     fout.close();
 
-    SG_UNREF(data);
-    SG_UNREF(centers);
+    //SG_UNREF(data);
+    //SG_UNREF(centers);
 }
 
 /*
@@ -166,16 +170,19 @@ void fImgSvm::vectorImg(string subpath , vector< vector<double > >  & imgfeature
         //return ;
     }
     int imgcount = 0;
-    while( (entry = readdir(dp)) != NULL){
+    while( (entry = readdir(dp)) != NULL) {
         string filestr = entry->d_name;
-        if(filestr.find(".feature") != -1) imgcount ++;
+        if(filestr.find(".feature") != -1)
+            imgcount ++;
     }
-    if(subpath == "feature") fImgSvm::mtrainimgsum  = imgcount;
-    else fImgSvm::mtestingsum  = imgcount;
+    if(subpath == "feature")
+        fImgSvm::mtrainimgsum  = imgcount;
+    else
+        fImgSvm::mtestingsum  = imgcount;
     imgfeaturevec.resize(imgcount);
     int indexid = -1;
 
-    for(int i = 0 ; i < imgfeaturevec.size()  ; i ++){
+    for(int i = 0 ; i < imgfeaturevec.size()  ; i ++) {
         imgfeaturevec[i].assign(mwordnum ,0);
     }
     //double darray[SIFTN] ;
@@ -208,7 +215,7 @@ void fImgSvm::vectorImg(string subpath , vector< vector<double > >  & imgfeature
             mfimgfeature.getSiftFeatureFile(filename ,vec);
 
             int len = vec.size();
-            for(int i = 0 ; i < len ;  i ++){
+            for(int i = 0 ; i < len ;  i ++) {
                 int t = getNearVec(vec[i]);
                 imgfeaturevec[imgid][t] ++;
             }
@@ -220,8 +227,10 @@ void fImgSvm::vectorImg(string subpath , vector< vector<double > >  & imgfeature
 
     string outfilename = subpath+"vector";
     ofstream fout(outfilename.c_str() );
-    for(int i = 0 ; i < imgcount ; i ++){
-        for(int j = 0 ; j < mwordnum ; j ++){
+    fout << imgcount <<endl;
+    for(int i = 0 ; i < imgcount ; i ++) {
+        fout<<lab[i] <<" ";
+        for(int j = 0 ; j < mwordnum ; j ++) {
             fout << imgfeaturevec[i][j] <<" ";
         }
         fout << endl;
@@ -238,11 +247,11 @@ int fImgSvm::getNearVec(vector<double > & dvec)
     double dist = 999999.0;
     int32_t nearpos = -1;
     for(map<int ,vector<double> > ::iterator it = dictmap.begin() ; \
-        it != dictmap.end() ; it ++){
+            it != dictmap.end() ; it ++) {
         vector<double > &t = it->second;
         int len = t.size();
         double d = 0.0;
-        for(int i = 0 ; i < len ; i ++){
+        for(int i = 0 ; i < len ; i ++) {
             d += (dvec[i] -  t[i] ) *(dvec[i] -  t[i] );
         }
         d = sqrt(d);
@@ -255,119 +264,119 @@ int fImgSvm::getNearVec(vector<double > & dvec)
 }
 void fImgSvm::test_libsvm()
 {
-	init_shogun(&print_message);
-	index_t num_vec=imgvec.size();
-	index_t num_feat=SIFTN;
-	index_t num_class=2;
+    init_shogun(&print_message);
+    index_t num_vec=imgvec.size();
+    index_t num_feat=SIFTN;
+    index_t num_class=2;
 
-	// create some data
-	SGMatrix<float64_t> matrix(num_feat, num_vec);
-	for(int i = 0 ; i < num_vec ; i ++ ){
-        for(int j = 0 ; j < num_feat ; j ++ ){
+    // create some data
+    SGMatrix<float64_t> matrix(num_feat, num_vec);
+    for(int i = 0 ; i < num_vec ; i ++ ) {
+        for(int j = 0 ; j < num_feat ; j ++ ) {
             matrix(j,i) = imgvec[i][j];
         }
-	}
-	//SGVector<float64_t>::range_fill_vector(matrix.matrix, num_feat*num_vec);
+    }
+    //SGVector<float64_t>::range_fill_vector(matrix.matrix, num_feat*num_vec);
 
-	// create vectors
-	// shogun will now own the matrix created
-	CDenseFeatures<float64_t>* features=new CDenseFeatures<float64_t>(matrix);
+    // create vectors
+    // shogun will now own the matrix created
+    CDenseFeatures<float64_t>* features=new CDenseFeatures<float64_t>(matrix);
 
-	// create three labels
-	CMulticlassLabels* labels=new CMulticlassLabels(num_vec);
-	for (index_t i=0; i<num_vec; ++i)
-		labels->set_label(i,imglabelvec[i]);
+    // create three labels
+    CMulticlassLabels* labels=new CMulticlassLabels(num_vec);
+    for (index_t i=0; i<num_vec; ++i)
+        labels->set_label(i,imgtrainlabelvec[i]);
 
-	// create gaussian kernel with cache 10MB, width 0.5
-	CGaussianKernel* kernel = new CGaussianKernel(10, 0.5);
-	kernel->init(features, features);
+    // create gaussian kernel with cache 10MB, width 0.5
+    CGaussianKernel* kernel = new CGaussianKernel(10, 0.5);
+    kernel->init(features, features);
 
-	// create libsvm with C=10 and train
-	CMulticlassLibSVM* svm = new CMulticlassLibSVM(10, kernel, labels);
-	svm->train();
+    // create libsvm with C=10 and train
+    CMulticlassLibSVM* svm = new CMulticlassLibSVM(10, kernel, labels);
+    svm->train();
 
-	// classify on training examples
-	CMulticlassLabels* output=CMulticlassLabels::obtain_from_generic(svm->apply());
-	SGVector<float64_t>::display_vector(output->get_labels().vector, output->get_num_labels(),
-			"初始的 output");
+    // classify on training examples
+    CMulticlassLabels* output=CMulticlassLabels::obtain_from_generic(svm->apply());
+    SGVector<float64_t>::display_vector(output->get_labels().vector, output->get_num_labels(),
+                                        "初始的 output");
 
-	/* assert that batch apply and apply(index_t) give same result */
-	for (index_t i=0; i<output->get_num_labels(); ++i)
-	{
-		float64_t label=svm->apply_one(i);
-		SG_SPRINT("result output[%d]=%f\n", i, label);
-		ASSERT(output->get_label(i)==label);
-	}
-	SG_UNREF(output);
+    /* assert that batch apply and apply(index_t) give same result */
+    for (index_t i=0; i<output->get_num_labels(); ++i) {
+        float64_t label=svm->apply_one(i);
+        SG_SPRINT("result output[%d]=%f\n", i, label);
+        ASSERT(output->get_label(i)==label);
+    }
+    SG_UNREF(output);
 
-	// free up memory
-	SG_UNREF(svm);
+    // free up memory
+    SG_UNREF(svm);
 
-	exit_shogun();
+    exit_shogun();
 }
 void fImgSvm::test_libsvm2()
 {
     init_shogun(&print_message);
     const int32_t feature_cache=0;
-	const int32_t kernel_cache=0;
-	const float64_t rbf_width=10;
-	const float64_t svm_C=10;
-	const float64_t svm_eps=0.001;
+    const int32_t kernel_cache=0;
+    const float64_t rbf_width=10;
+    const float64_t svm_C=10;
+    const float64_t svm_eps=0.001;
 
-	int32_t num=mtrainimgsum;
-	int32_t dims=SIFTN;
-	float64_t dist=0.5;
+    int32_t num=mtrainimgsum;
+    int32_t dims=SIFTN;
+    float64_t dist=0.5;
 
-	SGVector<float64_t> lab(num); //标签
-	SGMatrix<float64_t> feat(dims, num);
+    SGVector<float64_t> lab(num); //标签
+    SGMatrix<float64_t> feat(dims, num);
 
-	//gen_rand_data(lab, feat, dist);
-    for(int i = 0 ; i < num ; i ++ ){
-        for(int j = 0 ; j < dims ; j ++ ){
+    //gen_rand_data(lab, feat, dist);
+    for(int i = 0 ; i < num ; i ++ ) {
+        for(int j = 0 ; j < dims ; j ++ ) {
             feat(j,i) = imgvec[i][j];
         }
-	}
+    }
 
-	 for(int i = 0 ; i < num ; i ++ ){
+    for(int i = 0 ; i < num ; i ++ ) {
         //lab[i] = imglabelvec[i]*1.0;
-        if(imglabelvec[i] ==  1) lab[i] = -1.0;
-        else lab[i] = 1.0;
-	 }
+        if(imgtrainlabelvec[i] ==  1)
+            lab[i] = -1.0;
+        else
+            lab[i] = 1.0;
+    }
 
-	// create train labels
-	CLabels* labels=new CBinaryLabels(lab);
+    // create train labels
+    CLabels* labels=new CBinaryLabels(lab);
 
-	// create train features
-	CDenseFeatures<float64_t>* features=new CDenseFeatures<float64_t>(feature_cache);
-	SG_REF(features);
-	features->set_feature_matrix(feat);
+    // create train features
+    CDenseFeatures<float64_t>* features=new CDenseFeatures<float64_t>(feature_cache);
+    SG_REF(features);
+    features->set_feature_matrix(feat);
 
-	// create gaussian kernel
-	CGaussianKernel* kernel=new CGaussianKernel(kernel_cache, rbf_width);
-	SG_REF(kernel);
-	kernel->init(features, features);
+    // create gaussian kernel
+    CGaussianKernel* kernel=new CGaussianKernel(kernel_cache, rbf_width);
+    SG_REF(kernel);
+    kernel->init(features, features);
 
-	// create svm via libsvm and train
-	CLibSVM* svm=new CLibSVM(svm_C, kernel, labels);
-	SG_REF(svm);
-	svm->set_epsilon(svm_eps);
-	svm->train();
+    // create svm via libsvm and train
+    CLibSVM* svm=new CLibSVM(svm_C, kernel, labels);
+    SG_REF(svm);
+    svm->set_epsilon(svm_eps);
+    svm->train();
 
-	SG_SPRINT("num_sv:%d b:%f\n", svm->get_num_support_vectors(),
-			svm->get_bias());
+    SG_SPRINT("num_sv:%d b:%f\n", svm->get_num_support_vectors(),
+              svm->get_bias());
 
-	// classify + display output
-	CBinaryLabels* out_labels=CBinaryLabels::obtain_from_generic(svm->apply());
+    // classify + display output
+    CBinaryLabels* out_labels=CBinaryLabels::obtain_from_generic(svm->apply());
 
-	for (int32_t i=0; i<num; i++)
-	{
-		SG_SPRINT("out[%d]=%f (%f)\n", i, out_labels->get_label(i),
-				out_labels->get_confidence(i));
-	}
+    for (int32_t i=0; i<num; i++) {
+        SG_SPRINT("out[%d]=%f (%f)\n", i, out_labels->get_label(i),
+                  out_labels->get_confidence(i));
+    }
 
     CBinaryLabels* result = CBinaryLabels::obtain_from_generic (svm->apply(features) );
     for (int32_t i=0; i<3; i++)
-                SG_SPRINT("output[%d]=%f\n", i, result->get_label(i));
+        SG_SPRINT("output[%d]=%f\n", i, result->get_label(i));
 
     // update
     // predict the
@@ -377,48 +386,49 @@ void fImgSvm::test_libsvm2()
     int32_t testnum = mtestingsum;
     SGMatrix<float64_t> testfeat(dims, testnum);
 
-    for(int i = 0 ; i < testnum ; i ++ ){
-        for(int j = 0 ; j < dims ; j ++ ){
+    for(int i = 0 ; i < testnum ; i ++ ) {
+        for(int j = 0 ; j < dims ; j ++ ) {
             testfeat(j,i) = imgtestvec[i][j];
         }
-	}
+    }
 
     CDenseFeatures<float64_t>* testfeatures=new CDenseFeatures<float64_t>(feature_cache);
-	SG_REF(testfeatures);
-	testfeatures->set_feature_matrix(testfeat);
+    SG_REF(testfeatures);
+    testfeatures->set_feature_matrix(testfeat);
     CBinaryLabels* testresult = CBinaryLabels::obtain_from_generic (svm->apply(testfeatures) );
     int32_t rightnum1 = 0;
     int32_t rightsum1 = 0;
     int32_t rightnum2 = 0;
-    for (int32_t i=0; i<testnum; i++){
-         SG_SPRINT("output[%d]=%f\n", i, testresult->get_label(i));
-         if(labtestvec[i] == 1  ){
-            if( (testresult->get_label(i))  < 0.0){
+    for (int32_t i=0; i<testnum; i++) {
+        SG_SPRINT("output[%d]=%f\n", i, testresult->get_label(i));
+        if(imgtestlabelvec[i] == 1  ) {
+            if( (testresult->get_label(i))  < 0.0) {
                 rightnum1 ++;
             }
             rightsum1 ++ ;
-         }else if(labtestvec[i] == 2 && testresult->get_label(i) > 0.0){
-            rightnum2 ++ ;
-         }
-     }
+        } else
+            if(imgtestlabelvec[i] == 2 && testresult->get_label(i) > 0.0) {
+                rightnum2 ++ ;
+            }
+    }
 
-     printf(" %lf\n ",(rightnum1+rightnum2)*1.0 / testnum);
-     printf("class 1 : %lf\n",rightnum1 *1.0 / rightsum1);
-     printf("class 2 : %lf\n",rightnum2 *1.0 / (testnum -  rightsum1));
+    printf(" %lf\n ",(rightnum1+rightnum2)*1.0 / testnum);
+    printf("class 1 : %lf\n",rightnum1 *1.0 / rightsum1);
+    printf("class 2 : %lf\n",rightnum2 *1.0 / (testnum -  rightsum1));
 
 
 
-	SG_UNREF(out_labels);
-	SG_UNREF(kernel);
-	SG_UNREF(features);
-	SG_UNREF(svm);
+    SG_UNREF(out_labels);
+    SG_UNREF(kernel);
+    SG_UNREF(features);
+    SG_UNREF(svm);
 
-	exit_shogun();
+    exit_shogun();
 }
 
 void fImgSvm::getTestImg(vector< vector<double > >  &test)
 {
-    vectorImg("testfeature",test,labtestvec);
+    vectorImg("testfeature",test,imgtestlabelvec);
 }
 
 void fImgSvm::Work()
@@ -426,16 +436,16 @@ void fImgSvm::Work()
     string dir = grootpath+"feature";
     chdir(dir.c_str());
     ifstream fin("dict");
-    for(int i = 0 ; i < mwordnum ; i ++ ){
+    for(int i = 0 ; i < mwordnum ; i ++ ) {
         vector<double > dvec;
-        for(int j = 0 ; j < SIFTN ; j ++ ){
+        for(int j = 0 ; j < SIFTN ; j ++ ) {
             double d;
             fin>> d;
             dvec.push_back(d);
         }
         dictmap.insert( map<int ,vector<double > >::value_type(i ,dvec ));
     }
-    vectorImg("feature",imgvec ,imglabelvec);
+    vectorImg("feature",imgvec ,imgtrainlabelvec);
     test_libsvm2();
 }
 
@@ -444,56 +454,64 @@ bool fImgSvm::kmeans(SGMatrix<float64_t> &data ,  CDenseFeatures<float64_t>*  &c
     init_shogun(&print_message);
 
 
-	int32_t num_clusters= mwordnum ;
+    int32_t num_clusters= mwordnum ;
 
 
-	int32_t dim_features=SIFTN;
+    int32_t dim_features=SIFTN;
 
-	float64_t cluster_std_dev=2.0;
+    float64_t cluster_std_dev=2.0;
 
-	/* build random cluster centers */
-	SGMatrix<float64_t> cluster_centers(dim_features, num_clusters);
-	SGVector<float64_t>::random_vector(cluster_centers.matrix, dim_features*num_clusters,
-			0, 20.0);
-	//SGMatrix<float64_t>::display_matrix(cluster_centers.matrix, cluster_centers.num_rows,
-	//		cluster_centers.num_cols, "cluster centers");
-
-
+    /* build random cluster centers */
+    SGMatrix<float64_t> cluster_centers(dim_features, num_clusters);
+    SGVector<float64_t>::random_vector(cluster_centers.matrix, dim_features*num_clusters,
+                                       0, 20.0);
+    //SGMatrix<float64_t>::display_matrix(cluster_centers.matrix, cluster_centers.num_rows,
+    //		cluster_centers.num_cols, "cluster centers");
 
 
-	/* create features, SG_REF to avoid deletion */
-	CDenseFeatures<float64_t>* features=new CDenseFeatures<float64_t> ();
-	features->set_feature_matrix(data);
-	SG_REF(features);
 
-	/* create labels for cluster centers */
-	CMulticlassLabels* labels=new CMulticlassLabels(num_features);
-	for (index_t i=0; i<num_features; ++i)
-		labels->set_label(i, 0);
 
-	/* create distance */
-	CEuclideanDistance* distance=new CEuclideanDistance(features, features);
+    /* create features, SG_REF to avoid deletion */
+    CDenseFeatures<float64_t>* features=new CDenseFeatures<float64_t> ();
+    features->set_feature_matrix(data);
+    SG_REF(features);
 
-	/* create distance machine */
-	CKMeans* clustering=new CKMeans(num_clusters, distance);
-	clustering->train(features);
+    /* create labels for cluster centers */
+    CMulticlassLabels* labels=new CMulticlassLabels(num_features);
+    for (index_t i=0; i<num_features; ++i)
+        labels->set_label(i, 0);
 
-	/* build clusters */
+    /* create distance */
+    CEuclideanDistance* distance=new CEuclideanDistance(features, features);
+
+    /* create distance machine */
+    CKMeans* clustering=new CKMeans(num_clusters, distance);
+    clustering->train(features);
+
+    /* build clusters */
 //	CMulticlassLabels* result=CMulticlassLabels::obtain_from_generic(clustering->apply());
 //	for (index_t i=0; i<result->get_num_labels(); ++i)
 //		SG_SPRINT("cluster index of vector %i: %f\n", i, result->get_label(i));
 
-	/* print cluster centers */
+    /* print cluster centers */
     centers = (CDenseFeatures<float64_t>*)distance->get_lhs();
 
-	SGMatrix<float64_t> centers_matrix=centers->get_feature_matrix();
+    SGMatrix<float64_t> centers_matrix=centers->get_feature_matrix();
 
 
-	//SG_UNREF(result);
-	SG_UNREF(centers);
-	SG_UNREF(clustering);
-	SG_UNREF(labels);
-	SG_UNREF(features);
+    //SG_UNREF(result);
+    SG_UNREF(centers);
+    SG_UNREF(clustering);
+    SG_UNREF(labels);
+    SG_UNREF(features);
 
-	exit_shogun();
+    exit_shogun();
+}
+
+/*
+直接从文件中读取图像的向量，省得每次都重新提取图像的特征
+*/
+void fImgSvm::getImgVecFile( string subpath,vector< vector<double > >  &matrix ,vector < int32_t > & lab)
+{
+
 }

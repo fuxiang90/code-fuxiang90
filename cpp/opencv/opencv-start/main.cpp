@@ -1,5 +1,6 @@
 #include "fImgFeature.h"
 #include "fImgSvm.h"
+#include "fImgMultSvm.h"
 int main()
 {
     string name = "cat.jpg";
@@ -7,14 +8,18 @@ int main()
 
     //ftest->Test();
 
-    int i;
-    cout << "input for 1 ,run work:" ;
-    cin>>i;
-    fImgSvm * fsvm = new fImgSvm();
-    if(i == 1)
-        fsvm->Work();
-    else
-        fsvm->PreProcess("imgfile");
+    //int i;
+//    cout << "input for 1 ,run work:" ;
+//    cin>>i;
+//    fImgSvm * fsvm = new fImgSvm();
+//    if(i == 1)
+//        fsvm->Work();
+//    else
+//        fsvm->PreProcess("imgfile");
+
+    fImgMultSvm* fmult = new fImgMultSvm();
+    fmult->Train();
+    fmult->Predict();
 
 //    ifstream  fin( "1.feature" );
 //    int n ;

@@ -16,7 +16,9 @@ const int rows = 128;
 class fImgSvm
 {
 public:
-    fImgSvm():mwordnum(500),mtrainimgsum(0),mtestingsum(0){}
+
+    fImgSvm():mwordnum(500),mtrainimgsum(0),mtestingsum(0) {}
+    virtual ~fImgSvm() ;
     //打开file 目录下的文件，然后取出所有的jpg
     //生成feature
     //并生成字典
@@ -24,7 +26,8 @@ public:
     //得到每一类的训练向量
     void PreProcess(string file);
     void Work();
-private:
+    virtual void Train() = 0;
+protected:
     fImgFeature mfimgfeature;
     int32_t mwordnum;
     int32_t mtrainimgsum ;
@@ -32,8 +35,8 @@ private:
     map < int ,vector< double > > dictmap;
     vector< vector <double > > imgvec;
     vector< vector<double > > imgtestvec;
-    vector < int32_t > labtestvec;
-    vector< int32_t >  imglabelvec;
+    vector < int32_t > imgtestlabelvec;
+    vector< int32_t >  imgtrainlabelvec;
     vector < int32_t > labvec;
 
 
@@ -42,15 +45,16 @@ private:
     void createFeatureDict();
 
     //把图像向量化
-    void vectorImg(string subpath,vector< vector<double > >  &test ,vector < int32_t > & lab);
+    void vectorImg(string subpath,vector< vector<double > >  &matrix ,vector < int32_t > & lab);
 
     void getDictFile();
     int getNearVec(vector<double > &dvec);
     void test_libsvm();
     void test_libsvm2();
-    void getTestImg(vector< vector<double > >  &test);
-
+    void getTestImg(vector< vector<double > >  &matrix);
     bool kmeans(SGMatrix<float64_t> &data ,  CDenseFeatures<float64_t>*  &centers , int32_t numfeatures);
+
+    virtual void getImgVecFile( string subpath,vector< vector<double > >  &matrix ,vector < int32_t > & lab);
 };
 
 
