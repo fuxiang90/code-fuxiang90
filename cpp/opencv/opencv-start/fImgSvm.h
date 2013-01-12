@@ -17,7 +17,7 @@ class fImgSvm
 {
 public:
 
-    fImgSvm():mwordnum(500),mtrainimgsum(0),mtestingsum(0) {}
+    fImgSvm():mwordnum(1000),mtrainimgsum(0),mtestingsum(0) {}
     virtual ~fImgSvm() ;
     //打开file 目录下的文件，然后取出所有的jpg
     //生成feature

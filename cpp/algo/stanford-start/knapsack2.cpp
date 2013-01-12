@@ -11,9 +11,9 @@ using namespace std;
 
 const int N = 2000000 + 10;
 int value[N];
-int weight[N];
+int cap[N];
 int data[N];
-int weightsum = 0;
+int capsum = 0;
 
 //2595919
 
@@ -21,24 +21,23 @@ int knapsack(int n)
 {
 
     for(int i = 1 ; i <= n ; i ++){
-        for(int j = weightsum; j >= 1 ; j --){
-            if(weight[i] <= j)
-                data[j]  = max(data[j] , data[j-weight[i]]  + value[i]);
-
+        for(int j = capsum; j >= 1 ; j --){
+            if(cap[i] <= j)
+                data[j]  = max(data[j] , data[j-cap[i]]  + value[i]);
         }
     }
 
-    return data[weightsum];
+    return data[capsum];
 }
 int main()
 {
 
-    ifstream fin("knapsack2.txt");
+    ifstream fin("knapsack1.txt");
 
     int n ;
-    fin>> weightsum >> n;
+    fin>> capsum >> n;
     for(int i = 1 ; i <= n ; i ++){
-        fin>>value[i] >> weight[i] ;
+        fin>>value[i] >> cap[i] ;
     }
 
     cout << knapsack(n) << endl;
