@@ -7,13 +7,14 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include <limits>
 using namespace std;
 
 
-const int N = 10000 + 10;
+const int N = 100 + 10;
 int value[N];
 int cap[N]; /*每个物品的容量*/
-int data[N][1000+10];
+int data[N][100000+10];
 int capsum = 0;/*背包的总容量*/
 
 //1777086
