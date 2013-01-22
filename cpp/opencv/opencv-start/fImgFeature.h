@@ -18,13 +18,15 @@ public:
     int GetSift(string name ,CvMat* &mat);
     void StoreImgSift(string imgname ,string filename);
     void Test();
-    void getSiftFeatureFile(string filename , vector<vector<double > > & a );
+    void GetSiftFeatureFile(string filename , vector<vector<double > > & a );
+
+    void GetColorByName(string name ,string &path_name ,vector<double > & color_vec);
 
 private:
     IplImage *  mimg;
     string mfilename ;
 
-    void getColor(IplImage * img);
+    void getColor(IplImage * img,vector<double > & color_vec  );
     void getColorByName(string name);
     void getShapeByName(string name);
     void getShape(IplImage * img);

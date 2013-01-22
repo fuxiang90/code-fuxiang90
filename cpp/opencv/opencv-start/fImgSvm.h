@@ -17,7 +17,10 @@ class fImgSvm
 {
 public:
 
-    fImgSvm():mwordnum(500),mtrainimgsum(0),mtestingsum(0) {}
+    fImgSvm():mwordnum(600),mtrainimgsum(0),mtestingsum(0) {
+        //mfeatures_num = mwordnum + 128;
+        mfeatures_num = mwordnum ;
+    }
     virtual ~fImgSvm() ;
     //打开file 目录下的文件，然后取出所有的jpg
     //生成feature
@@ -29,6 +32,7 @@ public:
     virtual void Train() = 0;
 protected:
     fImgFeature mfimgfeature;
+    int32_t mfeatures_num ;
     int32_t mwordnum;
     int32_t mtrainimgsum ;
     int32_t mtestingsum;

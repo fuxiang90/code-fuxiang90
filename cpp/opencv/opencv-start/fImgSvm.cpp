@@ -90,31 +90,10 @@ void fImgSvm::createFeatureDict()
             if(pos == -1 )
                 continue;
 
-            mfimgfeature.getSiftFeatureFile(filename ,featurevec);
+            mfimgfeature.GetSiftFeatureFile(filename ,featurevec);
         }
     }
     int nfeature = featurevec.size();
-    // imglabelvec.assign(nfeature+1,0);
-    //double (*pszDiscriptor)[SIFTN] = new double[nfeature][SIFTN];
-//    double pszDiscriptor[nfeature][SIFTN] ;
-
-
-//    double **pszDiscriptor;
-//    pszDiscriptor = (double ** ) malloc(nfeature * sizeof(double *));
-//    for(int i = 0 ; i < nfeature ; i ++){
-//        double *temp = NULL;
-//        temp = (double *) malloc(sizeof(double) * SIFTN );
-//        if(temp == NULL){
-//            printf("malloc error\n");
-//            return ;
-//        }
-//        *(pszDiscriptor + i) = temp;
-//    }
-//    for (int i = 0; i < nfeature; ++i)  {
-//        for (int j = 0; j < SIFTN; j++) {
-//            pszDiscriptor[i][j] = featurevec[i][j];
-//        }
-//    }
 
     SGMatrix<float64_t> data(SIFTN, nfeature) ;
     for (int i = 0; i < nfeature; ++i)  {
@@ -183,7 +162,7 @@ void fImgSvm::vectorImg(string subpath , vector< vector<double > >  & imgfeature
     int indexid = -1;
 
     for(int i = 0 ; i < imgfeaturevec.size()  ; i ++) {
-        imgfeaturevec[i].assign(mwordnum ,0);
+        imgfeaturevec[i].assign(mfeatures_num ,0);
     }
     //double darray[SIFTN] ;
 
@@ -212,13 +191,28 @@ void fImgSvm::vectorImg(string subpath , vector< vector<double > >  & imgfeature
             vector <vector <double > > vec;
 
 
-            mfimgfeature.getSiftFeatureFile(filename ,vec);
+            mfimgfeature.GetSiftFeatureFile(filename ,vec);
 
             int len = vec.size();
             for(int i = 0 ; i < len ;  i ++) {
                 int t = getNearVec(vec[i]);
                 imgfeaturevec[imgid][t] ++;
             }
+
+//            vector<double> color_vec;
+//            string color_path ;
+//            if(subpath == "feature")
+//               color_path = grootpath+"imgfile";
+//            else
+//                color_path = grootpath+"test";
+//            string img_name = filename.substr(0,pos-0);
+//            img_name += ".jpg";
+//            mfimgfeature.GetColorByName(img_name,color_path,color_vec);
+//            chdir(dirname.c_str());
+//            for(int i = 0 ; i < color_vec.size() ;  i ++) {
+//
+//                imgfeaturevec[imgid][i+mwordnum]  = color_vec[i];
+//            }
             imgid ++ ;
 
             printf("%s\n",filename.c_str());
@@ -230,7 +224,7 @@ void fImgSvm::vectorImg(string subpath , vector< vector<double > >  & imgfeature
     fout << imgcount <<endl;
     for(int i = 0 ; i < imgcount ; i ++) {
         fout<<lab[i] <<" ";
-        for(int j = 0 ; j < mwordnum ; j ++) {
+        for(int j = 0 ; j < mfeatures_num ; j ++) {
             fout << imgfeaturevec[i][j] <<" ";
         }
         fout << endl;

@@ -1,6 +1,6 @@
 #include "fImgFeature.h"
 
-
+static string grootpath = "/home/fuxiang/code-fuxiang90/cpp/opencv/opencv-start/";
 fImgFeature::fImgFeature(string filename)
 {
     mfilename = filename;
@@ -40,9 +40,10 @@ void  fImgFeature::Test()
 void fImgFeature::getColorByName(string name)
 {
     IplImage * src= cvLoadImage(name.c_str(),1);
-    getColor(src);
+    vector<double> t;
+    getColor(src ,t);
 }
-void fImgFeature::getColor(IplImage * src)
+void fImgFeature::getColor(IplImage * src ,vector<double > & color_vec )
 {
 
     IplImage* hsv = cvCreateImage( cvGetSize(src), 8, 3 );
@@ -95,13 +96,14 @@ void fImgFeature::getColor(IplImage * src)
             float bin_val = cvQueryHistValue_2D( hist, h, s );
             int intensity = cvRound(bin_val*height/max_value);
 
-            fout << intensity << "\t" << endl;
+            //fout << intensity << "\t" << endl;
+            color_vec.push_back(intensity);
             /** 获得当前直方图代表的颜色，转换成RGB用于绘制*/
             cvSet2D(hsv_color,0,0,cvScalar(h*180.f / h_bins,s*255.f/s_bins,255,0));
             cvCvtColor(hsv_color,rgb_color,CV_HSV2BGR);
             CvScalar color = cvGet2D(rgb_color,0,0);
 
-            cout <<  color.val << endl;
+            //cout <<  color.val << endl;
             cvRectangle( hist_img, cvPoint(i*bin_w,height),
                          cvPoint((i+1)*bin_w,height - intensity),
                          color, -1, 8, 0 );
@@ -109,11 +111,11 @@ void fImgFeature::getColor(IplImage * src)
     }
 
     fout.close();
-    cvNamedWindow( "Source", 1 );
-    cvShowImage( "Source", src );
+    //cvNamedWindow( "Source", 1 );
+    //cvShowImage( "Source", src );
 
-    cvNamedWindow( "H-S Histogram", 1 );
-    cvShowImage( "H-S Histogram", hist_img );
+    //cvNamedWindow( "H-S Histogram", 1 );
+   // cvShowImage( "H-S Histogram", hist_img );
 
     cvWaitKey(10);
 
@@ -286,7 +288,7 @@ void fImgFeature::StoreImgSift(string imgname ,string filename)
     cvReleaseMat(&imgMat);
 }
 
-void fImgFeature::getSiftFeatureFile(string filename , vector< vector<double > > & data )
+void fImgFeature::GetSiftFeatureFile(string filename , vector< vector<double > > & data )
 {
     //chdir("/home/fuxiang/code-fuxiang90/cpp/opencv/opencv-start/feature");
     ifstream  fin(filename.c_str());
@@ -305,4 +307,12 @@ void fImgFeature::getSiftFeatureFile(string filename , vector< vector<double > >
         data.push_back(temp);
     }
     fin.close();
+}
+
+void  fImgFeature::GetColorByName(string name ,string &path_name ,vector<double > & color_vec)
+{
+
+    chdir(path_name.c_str() );
+    IplImage * img = cvLoadImage(name.c_str(),1);
+    getColor(img,color_vec);
 }

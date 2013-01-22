@@ -8,7 +8,7 @@ int main()
 
     //ftest->Test();
 
-    //int i;
+//    int i;
 //    cout << "input for 1 ,run work:" ;
 //    cin>>i;
 //    fImgSvm * fsvm = new fImgSvm();
@@ -18,6 +18,8 @@ int main()
 //        fsvm->PreProcess("imgfile");
 
     fImgMultSvm* fmult = new fImgMultSvm();
+
+    //fmult->PreProcess("imgfile");
     fmult->Train();
     fmult->Predict();
 

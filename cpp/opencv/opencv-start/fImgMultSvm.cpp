@@ -35,7 +35,7 @@ void fImgMultSvm::multSvm()
 {
     const int32_t feature_cache=0;
     int32_t num_vec=mtrainimgsum;
-	int32_t num_feat=SIFTN;
+	int32_t num_feat=mfeatures_num;
 	int32_t num_class=2;
     init_shogun(&print_message);
 	// create some data
@@ -43,7 +43,7 @@ void fImgMultSvm::multSvm()
 	//SGVector<float64_t>::range_fill_vector(matrix.matrix, num_feat*num_vec);
 
     for(int i = 0 ; i < mtrainimgsum ; i ++ ) {
-        for(int j = 0 ; j < SIFTN ; j ++ ) {
+        for(int j = 0 ; j < num_feat ; j ++ ) {
             matrix(j,i) = imgvec[i][j];
         }
     }
@@ -73,7 +73,7 @@ void fImgMultSvm::multSvm()
 
     getTestImg(imgtestvec);
     int32_t testnum = mtestingsum;
-    int32_t dims = SIFTN;
+    int32_t dims = mfeatures_num;
     SGMatrix<float64_t> testfeat(dims, testnum);
 
     for(int i = 0 ; i < testnum ; i ++ ) {
