@@ -70,7 +70,7 @@ void bitCreat()
         data[i] = data[j];
         data[j] = t;
     }
-    //setbuf(fp,buf);
+    setbuf(fp,buf);
     for(int i = 1 ; i<= N  ; i ++){
         //write(fp, const void *buf, size_t length);
         fprintf(fp,"%d\n",data[i]);

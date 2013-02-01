@@ -8,20 +8,16 @@ int main()
 
     //ftest->Test();
 
-//    int i;
-//    cout << "input for 1 ,run work:" ;
-//    cin>>i;
-//    fImgSvm * fsvm = new fImgSvm();
-//    if(i == 1)
-//        fsvm->Work();
-//    else
-//        fsvm->PreProcess("imgfile");
+    int i;
+    //fImgSvm * fsvm = new fImgSvm();
+
+    //fsvm->PreProcess("imgfile");
 
     fImgMultSvm* fmult = new fImgMultSvm();
 
-    //fmult->PreProcess("imgfile");
-    fmult->Train();
-    fmult->Predict();
+    fmult->PreProcess("imgfile");
+    //fmult->Train();
+    //fmult->Predict();
 
 //    ifstream  fin( "1.feature" );
 //    int n ;
