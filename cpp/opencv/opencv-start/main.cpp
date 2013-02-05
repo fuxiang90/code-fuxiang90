@@ -15,9 +15,9 @@ int main()
 
     fImgMultSvm* fmult = new fImgMultSvm();
 
-    fmult->PreProcess("imgfile");
-    //fmult->Train();
-    //fmult->Predict();
+    //fmult->PreProcess("imgfile");
+    fmult->Train();
+    fmult->Predict();
 
 //    ifstream  fin( "1.feature" );
 //    int n ;
