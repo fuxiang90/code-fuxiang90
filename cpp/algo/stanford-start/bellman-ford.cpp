@@ -58,7 +58,7 @@ bool bellmanFord(int s )
     }
 
     for(int i = 1 ; i <= num_v ; ++i ){
-        dp[s][i] = dist[i];
+
         for(int j = 1 ; j <= num_v ; ++j){
             if(dist[i] + graph[i][j] < dist[j])
                 return false;//有负环
@@ -210,8 +210,8 @@ int main()
 
 
     work();
-    return 0;
-    ////
+   // return 0;
+
     floyd();
 
     int min_cost = INT_MAX;
