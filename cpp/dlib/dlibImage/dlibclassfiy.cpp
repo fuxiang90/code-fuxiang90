@@ -1,19 +1,19 @@
 #include "dlibclassfiy.h"
-typedef one_vs_one_trainer<any_trainer<sample_type> > ovo_trainer;
-typedef matrix<double,500,1> sample_type;
+//typedef one_vs_one_trainer<any_trainer<sample_type> > ovo_trainer;
+//typedef matrix<double,500,1> sample_type;
 
     // Finally, make the one_vs_one_trainer.
 
-void dlibClassfiy::Train()
+void dlibClassfiy::Train(string filename)
 {
-    ifstream fin("featurevector");
+    ifstream fin(filename.c_str());
     int n ;
     fin>>n;
     for(int i = 0 ; i < n ; ++i){
         double label;
         fin>>label;
         train_labels.push_back(label);
-        int num;
+        double num;
         sample_type temp;
         for(int j = 0 ; j < features_num ; ++j){
             fin>>num;
@@ -53,23 +53,28 @@ void dlibClassfiy::Train()
     // still be solved with the rbf_trainer.
     trainer.set_trainer(poly_trainer, 1, 2);
 
-    one_vs_one_decision_function<ovo_trainer> df = trainer.train(train_feature, train_labels);
+    df = trainer.train(train_feature, train_labels);
 
     cout << "predicted label: "<< df(train_feature[0])  << ", true label: "<< train_labels[0] << endl;
     cout << "predicted label: "<< df(train_feature[2]) << ", true label: "<< train_labels[2] << endl;
 }
 
-void dlibClassfiy::Predict()
+void dlibClassfiy::Predict(string filename)
 {
 
-     ifstream fin("testfeaturevector");
+    ifstream fin(filename.c_str());
     int n ;
     fin>>n;
+
+    //add for bai
+   // int realresult[40]={4,3,4,3,4,3,4,3,4,3,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2};
+
     for(int i = 0 ; i < n ; ++i){
         double label;
         fin>>label;
+        //label = realresult[i];
         test_labels.push_back(label);
-        int num;
+        double num;
         sample_type temp;
         for(int j = 0 ; j < features_num ; ++j){
             fin>>num;
@@ -80,7 +85,7 @@ void dlibClassfiy::Predict()
     fin.close();
 
 
-    one_vs_one_decision_function<ovo_trainer> df = trainer.train(train_feature, train_labels);
+    //one_vs_one_decision_function<ovo_trainer> df = trainer.train(train_feature, train_labels);
 
     int test_num = test_feature.size();
     int rigth_num = 0;
@@ -93,8 +98,8 @@ void dlibClassfiy::Predict()
 }
 void testMain()
 {
-    dlibClassfiy test;
-    test.Train();
+    dlibClassfiy test(1000);
+    test.Train("featurevector");
     cout << "-----------------------------" <<endl;
-    test.Predict();
+    test.Predict("testfeaturevector");
 }

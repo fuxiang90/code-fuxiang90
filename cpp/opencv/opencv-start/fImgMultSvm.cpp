@@ -28,6 +28,9 @@ void fImgMultSvm::Train()
         dictmap.insert( map<int ,vector<double > >::value_type(i ,dvec ));
     }
     vectorImg("feature",imgvec ,imgtrainlabelvec);
+    #if 0
+        exit(0);
+    #endif
     multSvm();
  }
 

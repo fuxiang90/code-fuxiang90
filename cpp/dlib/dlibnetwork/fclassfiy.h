@@ -1,5 +1,7 @@
-#ifndef DLIBCLASSFIY_H_INCLUDED
-#define DLIBCLASSFIY_H_INCLUDED
+#ifndef FCLASSFIY_H_INCLUDED
+#define FCLASSFIY_H_INCLUDED
+
+
 
 #include "dlib/svm.h"
 
@@ -11,7 +13,7 @@ using namespace std;
 using namespace dlib;
 
 // Our data will be 2-dimensional data. So declare an appropriate type to contain these points.
-typedef matrix<double,1000,1> sample_type;
+typedef matrix<double,4,1> sample_type;
 typedef one_vs_one_trainer<any_trainer<sample_type> > ovo_trainer;
 // ----------------------------------------------------------------------------------------
 
@@ -21,12 +23,12 @@ void generate_data (
 );
 
 
-class dlibClassfiy
+class fClassfiy
 {
 public:
-    dlibClassfiy(int _features_num):features_num(_features_num){}
-    void Train(string filename);
-    void Predict(string filename);
+    fClassfiy():features_num(4){}
+    void Train();
+    void Predict();
 
 private :
     int features_num;
@@ -35,7 +37,6 @@ private :
 
     std::vector<sample_type> test_feature;
     std::vector<double> test_labels;
-    one_vs_one_decision_function<ovo_trainer> df;
 
 
 
@@ -47,4 +48,5 @@ private :
 
 
 void testMain();
-#endif // DLIBCLASSFIY_H_INCLUDED
+
+#endif // FCLASSFIY_H_INCLUDED

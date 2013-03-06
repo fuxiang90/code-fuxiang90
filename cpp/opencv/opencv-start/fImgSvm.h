@@ -17,7 +17,7 @@ class fImgSvm
 {
 public:
 
-    fImgSvm():mwordnum(500),mtrainimgsum(0),mtestingsum(0) {
+    fImgSvm():mwordnum(1000),mtrainimgsum(0),mtestingsum(0) {
         //mfeatures_num = mwordnum + 128;
         mfeatures_num = mwordnum ;
     }
