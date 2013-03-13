@@ -4,7 +4,7 @@
 
 void fNnClassfiy::Work()
 {
-     typedef matrix<double, 4, 1> fsample_type;
+    typedef matrix<double, 4, 1> fsample_type;
 
 
 

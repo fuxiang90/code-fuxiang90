@@ -14,7 +14,8 @@ void fGradientDescent::Train()
 
         double num;
         sample_type temp;
-        for(int j = 0 ; j < features_num ; ++j){
+        temp(0)  = 1;
+        for(int j = 1 ; j < features_num ; ++j){
             fin>>num;
             temp(j) = num;
         }
@@ -26,20 +27,34 @@ void fGradientDescent::Train()
 
     gaussian(train_feature);
     // 梯度下降算法
-    // f(x) = w1 * x1 + w2*x2 + w3*x+w4*x4;
+    // f(x) = w0 * x0 +w1 * x1 + w2*x2 + w3*x+w4*x4;x0  = 1
     gradientDesecent();
+    weigth0 = 0.0;
+
+    for(int i = 0 ; i < train_num ; i ++){
+        double o  = 0;
+        for(int k = 0 ; k < features_num ; k ++){
+            o += weights_vec[k]*train_feature[i](k);
+        }
+        cout << o << "real is" << train_labels[i] <<endl;
+
+        weigth0 = (train_labels[i] - o);
+    }
+
+    cout <<weigth0/train_num << endl;
+    cout << "-----------------------------------------\n" <<endl;
 }
 
 void fGradientDescent::gradientDesecent()
 {
-    int times =500;
+    int times = 800;
     weights_vec.resize(features_num);
     for(int i = 0 ; i < features_num ; i ++){
-        weights_vec[i] = 0.1;
+        weights_vec[i] = 0.4;
     }
-    double theta0 = 0.0005 ; //学习速度
+    double theta0 = 0.001 ; //学习速度
 
-    std::vector<double > delta(4,0.0);
+    std::vector<double > delta(features_num,0.0);
 
     for(int i = 0 ; i < times ; i ++) {
 
@@ -53,15 +68,14 @@ void fGradientDescent::gradientDesecent()
                 o += weights_vec[k]*train_feature[j](k);
             }
 
+            //delta[0] = theta0*(train_labels[j] - o);
             for(int k = 0 ; k < features_num ; k ++){
                 delta[k]  += theta0 *(train_labels[j] - o) *train_feature[j](k);
             }
-
-
         }
 
         for(int k = 0 ; k < features_num ; k ++){
-            weights_vec[k]  += delta[k];
+            weights_vec[k]  += delta[k]  ;
         }
 
         //
@@ -87,7 +101,8 @@ void fGradientDescent::Predict()
 
         double num;
         sample_type temp;
-        for(int j = 0 ; j < features_num ; ++j){
+        temp(0)  = 1;
+        for(int j = 1 ; j < features_num ; ++j){
             fin>>num;
             temp(j) = num;
         }
@@ -98,21 +113,38 @@ void fGradientDescent::Predict()
     }
     fin.close();
 
+      //归一化
+    for(int i =  0 ; i < test_num ; i ++){
+        test_feature[i](0)  = 1;
+        for(int j = 1 ; j < features_num ; j ++){
+           test_feature[i](j) = (test_feature[i](j) - u_vec[j])/ (1.5 *q_vec[j] );
+        }
+    }
+
+
+    int right_num = 0;
+     double h = 0.0;
     for(int i = 0 ; i < test_num ; i ++){
         double o  = 0;
         for(int k = 0 ; k < features_num ; k ++){
             o += weights_vec[k]*test_feature[i](k);
         }
         cout << o << "real is" << test_labels[i] <<endl;
-    }
 
+        h += (o - test_labels[i]) * (o - test_labels[i]);
+        if(fabs(o - test_labels[i]) < 0.5){
+            right_num ++;
+        }
+    }
+    cout << right_num*1.0 / test_num << endl;
+    cout << "lose function is" << h << endl;
 
 }
 void fGradientDescent::gaussian(std::vector<sample_type> & features_vec)
 {
     int n = features_vec.size();
-    std::vector<double > u_vec(features_num ,0);
-    std::vector<double> q_vec(features_num,0);
+    u_vec.resize(features_num );
+    q_vec.resize(features_num);
     for(int i =  0 ; i < n ; i ++){
 
         for(int j = 0 ; j < features_num ; j ++){
@@ -138,8 +170,9 @@ void fGradientDescent::gaussian(std::vector<sample_type> & features_vec)
     //归一化
     for(int i =  0 ; i < n ; i ++){
 
-        for(int j = 0 ; j < features_num ; j ++){
-           features_vec[i](j) = (features_vec[i](j) - u_vec[j])/q_vec[j];
+        features_vec[i](0) = 1;
+        for(int j = 1 ; j < features_num ; j ++){
+           features_vec[i](j) = (features_vec[i](j) - u_vec[j])/ (1.5 *q_vec[j] );
         }
     }
 
