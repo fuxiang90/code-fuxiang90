@@ -10,12 +10,13 @@
 using namespace std;
 using namespace dlib;
 
-typedef matrix<double,4,1> sample_type;
+
 
 class fGradientDescent
 {
+typedef matrix<double,5,1> sample_type;
 public:
-    fGradientDescent(int _features):features_num(_features){
+    fGradientDescent(int _features):features_num(_features + 1){
 
     }
     void Train();
@@ -25,6 +26,7 @@ private:
     int features_num;
     int train_num ;
     int test_num;
+    double weigth0;
     std::vector<sample_type> train_feature;
     std::vector<double> train_labels;
 
@@ -32,7 +34,8 @@ private:
     std::vector<double> test_labels;
 
     std::vector<double> weights_vec;
-
+    std::vector<double > u_vec ;
+    std::vector<double> q_vec ;
     void gradientDesecent();
 
     void gaussian(std::vector<sample_type> & features_vec);
