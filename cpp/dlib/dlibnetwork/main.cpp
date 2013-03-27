@@ -8,7 +8,8 @@ int main()
 {
     //testMain();
     //NnMain();
-    gradientMain();
+    //radientMain();
+    gradientBusMain();
     cout << "Hello world!" << endl;
     return 0;
 }
