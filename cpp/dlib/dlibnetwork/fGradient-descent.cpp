@@ -52,7 +52,7 @@ void fGradientDescent::gradientDesecent()
     for(int i = 0 ; i < features_num ; i ++){
         weights_vec[i] = 1;
     }
-    double theta0 = 0.001 ; //学习速度
+    double theta0 = 0.0001 ; //学习速度
 
     std::vector<double > delta(features_num,0.0);
 
@@ -188,12 +188,17 @@ void  gradientMain()
 //////////////////////////////////////////////////////////////////////////////////
 void fGradientDescentBus::Train()
 {
-    ifstream fin("trainbus");
+    ifstream fin("traindata");
     int n ;
     fin>>n;
     train_num = n;
     for(int i = 0 ; i < n ; ++i){
         double label;
+
+
+        int no_a ;
+        int no_b;
+        fin>>no_a >>no_b;
 
 
         double num;
@@ -232,12 +237,17 @@ void fGradientDescentBus::Train()
 
 void fGradientDescentBus::Predict()
 {
-    ifstream fin("testbus");
+    ifstream fin("testdata");
      int n ;
     fin>>n;
     test_num = n;
     for(int i = 0 ; i < n ; ++i){
         double label;
+
+
+        int no_a ;
+        int no_b;
+        fin>>no_a >>no_b;
 
         double num;
         sample_type temp;
@@ -273,22 +283,22 @@ void fGradientDescentBus::Predict()
         cout.setf(ios::fixed);
         cout << setprecision(8)<< o << "real is" <<setprecision(8) <<test_labels[i] <<endl;
         double t =  fabs(o - test_labels[i]) ;
-        if(t / 1000 < 60)low_one_num ++;
+        if(t  < 5)low_one_num ++;
         h += t ;
-        if(fabs(o - test_labels[i]) < 0.5){
+        if(fabs(o - test_labels[i]) < 5){
             right_num ++;
         }
     }
     cout << right_num*1.0 / test_num << endl;
-    cout << "average time is s:" << h/test_num/1000 << endl;
+    cout << "average delt is s:" << h/test_num << endl;
     cout << low_one_num << " " << test_num<< endl;
 
 }
 
 void  gradientBusMain()
 {
-    fGradientDescentBus test(3) ;
-    test.SetTrainTimes(1000);
+    fGradientDescentBus test(5) ;
+    test.SetTrainTimes(800);
     test.Train();
     test.Predict();
 }

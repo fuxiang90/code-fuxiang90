@@ -87,6 +87,9 @@ void setFun2()
 int main()
 {
 
+    //void * p = NULL;
+   // int * a= (int *)p;
+
     setFun2();
 
     return 0;
