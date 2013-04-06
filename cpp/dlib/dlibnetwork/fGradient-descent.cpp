@@ -283,9 +283,9 @@ void fGradientDescentBus::Predict()
         cout.setf(ios::fixed);
         cout << setprecision(8)<< o << "real is" <<setprecision(8) <<test_labels[i] <<endl;
         double t =  fabs(o - test_labels[i]) ;
-        if(t  < 5)low_one_num ++;
+        if(t  < 3)low_one_num ++;
         h += t ;
-        if(fabs(o - test_labels[i]) < 5){
+        if(fabs(o - test_labels[i]) < 3){
             right_num ++;
         }
     }

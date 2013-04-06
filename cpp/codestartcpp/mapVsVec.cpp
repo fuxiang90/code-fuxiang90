@@ -84,13 +84,17 @@ void setFun2()
       cout << "done" << endl;
     getchar();
 }
+
 int main()
 {
-
+//    int x = 10;
+//    x = x ++;
+//    cout <<x <<endl;
     //void * p = NULL;
    // int * a= (int *)p;
 
-    setFun2();
+
+    //setFun2();
 
     return 0;
 }
