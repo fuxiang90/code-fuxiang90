@@ -188,7 +188,12 @@ void  gradientMain()
 //////////////////////////////////////////////////////////////////////////////////
 void fGradientDescentBus::Train()
 {
-    ifstream fin("traindata");
+
+    if(train_file_name == ""){
+        train_file_name = "traindata";
+    }
+    ifstream fin(train_file_name.c_str());
+
     int n ;
     fin>>n;
     train_num = n;
@@ -237,8 +242,11 @@ void fGradientDescentBus::Train()
 
 void fGradientDescentBus::Predict()
 {
-    ifstream fin("testdata");
-     int n ;
+    if(test_file_name == ""){
+        test_file_name = "testdata";
+    }
+    ifstream fin(test_file_name.c_str());
+    int n ;
     fin>>n;
     test_num = n;
     for(int i = 0 ; i < n ; ++i){
@@ -294,11 +302,24 @@ void fGradientDescentBus::Predict()
     cout << low_one_num << " " << test_num<< endl;
 
 }
+void fGradientDescentBus::Set_train_file_name(string & file_name)
+{
+    train_file_name = file_name;
+}
+void fGradientDescentBus::Set_test_file_name(string & file_name)
+{
+    test_file_name = file_name;
+}
 
 void  gradientBusMain()
 {
+    string train_file("386-train");
+    string test_file("386-test");
     fGradientDescentBus test(5) ;
     test.SetTrainTimes(800);
+
+    test.Set_train_file_name(train_file);
+    test.Set_test_file_name(test_file);
     test.Train();
     test.Predict();
 }

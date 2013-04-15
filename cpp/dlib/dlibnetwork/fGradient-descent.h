@@ -57,9 +57,14 @@ public:
         features_num = _features;
     }
 
-    virtual void Train();
-    virtual void Predict();
+    void Train();
+    void Predict();
+    void Set_train_file_name(string & file_string);
+    void Set_test_file_name(string & file_string);
 private:
+    string train_file_name;
+    string test_file_name;
+
 };
 
 void  gradientBusMain();
