@@ -197,6 +197,17 @@ static int print_near_road()
 	printf("\n");
 	return 0;
 }
+
+ int get_near_k_road(int kth )
+{
+    if(kth > ZONE_NEAR)
+        return arr_near_road[1].roadid;
+    else
+        return arr_near_road[kth].roadid;
+
+
+
+}
 int test_zone()
 {
 	double x, y;

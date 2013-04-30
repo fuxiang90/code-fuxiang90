@@ -16,7 +16,7 @@ int fun(int data[],int s,int e)
     int mid = -1;
     int l = s;
     int r = e;
-    while(flag == 0 && l <= r){
+    while(flag == 0 && l < r){
 
         mid = (l+r)>>1;
 
@@ -50,5 +50,7 @@ int main()
     cout << fun(data2,0,9) <<endl;
     cout << fun(data3,0,0) <<endl;
     cout << fun(data4,0,1) <<endl;
+
+    cout << sizeof (double) << sizeof(long )  << sizeof(int) << sizeof(long long )<<endl;
 	return 0;
 }

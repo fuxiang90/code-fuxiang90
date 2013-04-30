@@ -7,6 +7,7 @@
 #include <fstream>
 using namespace std;
 
+
 int Mul(int a,int b)
 {
 	int ans=0;

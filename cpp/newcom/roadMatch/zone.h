@@ -12,4 +12,7 @@ extern void  count_dx_dy();
 
 extern int print_near_road2(int n);
 
+//得到第K个最匹配的路
+int get_near_k_road(int kth = 1);
+
 #endif

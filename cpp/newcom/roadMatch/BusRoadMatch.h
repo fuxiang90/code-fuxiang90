@@ -53,9 +53,16 @@ void bus_road_match_work();
 
 void bus_road_match_free();
 
+
+
 static  void Print(CSlist * l) ;
 
-//
+//偏移下 Cslist 里面第一个 和最后一个点的坐标
+static void get_delta_x_y(CSlistNode * first_node , CSlistNode * end_node ,double * dx ,double *dy ,int flag  );
+//得到一个数组中出现次数最多的数字
+static int get_max_times(int * arr ,int len,int * times);
+
+int  int_cmp(const void * a ,const void * b);
 
 void bus_road_match_testmain();
 

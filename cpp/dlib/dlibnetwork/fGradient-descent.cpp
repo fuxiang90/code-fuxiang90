@@ -2,6 +2,17 @@
 
 
 
+static void replaceAll(std::string& str, const std::string& from, const std::string& to) {
+    if(from.empty())
+        return;
+    size_t start_pos = 0;
+    while((start_pos = str.find(from, start_pos)) != std::string::npos) {
+        str.replace(start_pos, from.length(), to);
+        start_pos += to.length(); // In case 'to' contains 'from', like replacing 'x' with 'yx'
+    }
+}
+
+
 void fGradientDescent::Train()
 {
     ifstream fin("traindata");
@@ -52,7 +63,7 @@ void fGradientDescent::gradientDesecent()
     for(int i = 0 ; i < features_num ; i ++){
         weights_vec[i] = 1;
     }
-    double theta0 = 0.0001 ; //学习速度
+    double theta0 = 0.0002 ; //学习速度
 
     std::vector<double > delta(features_num,0.0);
 
@@ -279,7 +290,12 @@ void fGradientDescentBus::Predict()
         }
     }
 
-
+    //增加一个输出结果
+    string result_file_name(__DATE__);
+    result_file_name   += __TIME__;
+    replaceAll(result_file_name," ", "");
+    result_file_name = "./log/" + result_file_name;
+    ofstream result_out(result_file_name.c_str());
     int right_num = 0;
     double h = 0.0;
     int low_one_num = 0;
@@ -289,17 +305,29 @@ void fGradientDescentBus::Predict()
             o += weights_vec[k]*test_feature[i](k);
         }
         cout.setf(ios::fixed);
-        cout << setprecision(8)<< o << "real is" <<setprecision(8) <<test_labels[i] <<endl;
+        cout << setprecision(8)<< o << " real is " <<setprecision(8) <<test_labels[i] <<endl;
+
+        result_out.setf(ios::fixed);
+        result_out << setprecision(8)<< o << " real is " <<setprecision(8) <<test_labels[i] <<endl;
         double t =  fabs(o - test_labels[i]) ;
         if(t  < 3)low_one_num ++;
         h += t ;
-        if(fabs(o - test_labels[i]) < 3){
+        if(fabs(o - test_labels[i]) < 4){
             right_num ++;
         }
     }
     cout << right_num*1.0 / test_num << endl;
     cout << "average delt is s:" << h/test_num << endl;
     cout << low_one_num << " " << test_num<< endl;
+
+
+    result_out << right_num*1.0 / test_num << endl;
+    result_out << "average delt is s:" << h/test_num << endl;
+    result_out << low_one_num << " " << test_num<< endl;
+
+
+
+    result_out.close();
 
 }
 void fGradientDescentBus::Set_train_file_name(string & file_name)
@@ -311,12 +339,13 @@ void fGradientDescentBus::Set_test_file_name(string & file_name)
     test_file_name = file_name;
 }
 
+
 void  gradientBusMain()
 {
-    string train_file("386-train");
-    string test_file("386-test");
+    string train_file("386-15-train");
+    string test_file("386-15-test");
     fGradientDescentBus test(5) ;
-    test.SetTrainTimes(800);
+    test.SetTrainTimes(1000);
 
     test.Set_train_file_name(train_file);
     test.Set_test_file_name(test_file);
