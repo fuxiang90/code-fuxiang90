@@ -2,13 +2,29 @@
 #include "BusRoadMatch.h"
 
 
+extern  giroad **arr_proad;
+
+//#define CHOICE
+
+#ifndef CHOICE
 static const char * BUS_ROAD_FILE = "../roadid_GIROAD.txt" ;
 static const char * BUS_KEYNODE_FILE = "../roadid_GINODE.txt";
 static const char * BUS_ROADNODE_FILE = "../roadid_GIROADNODE.txt";
 
+#else
+static const char * BUS_ROAD_FILE = "../giroad.txt" ;
+static const char * BUS_KEYNODE_FILE = "../ginode.txt";
+static const char * BUS_ROADNODE_FILE = "../giroadnode.txt";
+#endif
 
+#ifndef CHOICE
 static const int MAX_BUS_ROAD = 35000;
 static const int MAX_BUS_ROAD_NODE = 200000;
+#else
+static const int MAX_BUS_ROAD = 800000;
+static const int MAX_BUS_ROAD_NODE = 4700000;
+
+#endif
 
 static  struct roadnode * bus_road_node_arr;
 static  BusRoad *  bus_road_arr;
@@ -49,9 +65,16 @@ void bus_road_match_input()
     int t1,t2;
     double len;
     real_road_count = 0;
+    #ifndef CHOICE
     while(fscanf(fin,"%d%d%d%lf%d",&roadseq ,&t1,&t2,&len,&roadid) != EOF ){
+    #else
+    while(fscanf(fin,"%d%d%d%lf",&roadseq ,&t1,&t2,&len) != EOF ){
+    #endif
         bus_road_arr[roadseq].roadseq = roadseq;
+
+        #ifndef CHOICE
         bus_road_arr[roadseq].roadid = roadid;
+        #endif
         bus_road_arr[roadseq].road_node_slist = CSlistCreate();
 
         if(real_road_count < roadseq) real_road_count = roadseq;
@@ -92,8 +115,16 @@ void bus_road_match_work()
 
     double d_x;
     double d_y;
-    for(i = 1 ; i <= real_road_count ;  i ++){
 
+    FILE * fout;
+    fout = fopen("./data/result","w");
+    if(fout == NULL){
+        printf("file open error");
+        exit(-1);
+    }
+
+    //fprintf(fout,"\t%d\t%d\t%lf\n" );
+    for(i = 1 ; i <= real_road_count ;  i ++){
 
         if(bus_road_arr[i].road_node_slist->len != 0){
             //Print(bus_road_arr[i].road_node_slist);
@@ -104,11 +135,13 @@ void bus_road_match_work()
             CSlistNode * next_node = NULL;
             int old_roadseq = 0;
             int roadseq = 0;
-            printf("%d---------------------------------\n",bus_road_arr[i].roadseq);
+           // printf("%d---------------------------------\n",bus_road_arr[i].roadseq);
 
             int roadnode_count = bus_road_arr[i].road_node_slist->len ;
             int * roadseq_arr = (int *)malloc(sizeof(int)*roadnode_count);
+            double min_dist = -1;
 
+            double min_dist_sum = 0.0;
             int roadseq_arr_pos = 0;
             while(list_node){
 
@@ -128,9 +161,12 @@ void bus_road_match_work()
                     d_y = 0.0;
                 }
 
-                old_roadseq = get_zone_road(bus_road_node_arr[roadseq].x + d_x ,bus_road_node_arr[roadseq].y + d_y);
+                old_roadseq = get_zone_road(bus_road_node_arr[roadseq].x + d_x ,bus_road_node_arr[roadseq].y + d_y
+                    ,&min_dist);
 
-                print_near_road2(3);
+                min_dist_sum += min_dist;
+
+                //print_near_road2(3);
 
                 roadseq_arr[roadseq_arr_pos++] = get_near_k_road(1);
 
@@ -140,16 +176,40 @@ void bus_road_match_work()
             }
             int times;
             int max_times_roadseq = get_max_times(roadseq_arr,roadnode_count,&times);
-            printf("max_num is %d and %.4lf\n ", max_times_roadseq ,times*1.0/roadnode_count);
+            //printf("max_num is %d and %.4lf\n ", max_times_roadseq ,times*1.0/roadnode_count);
+            if(max_times_roadseq < 1) continue;
+
+            //有些道路 离有roadid 太远了 要刷掉
+            if(min_dist_sum < 0 ||  (min_dist_sum /roadnode_count)  > 0.06  ){
+
+                times++;
+                times--;
+
+            }else {
+
+              //bus_road_arr[i].roadid =
+                #ifndef CHOICE
+                fprintf(fout,"%d\t%d\t%d\t%lf\n" ,
+                    bus_road_arr[i].roadseq ,bus_road_arr[i].roadid, max_times_roadseq  , times*1.0/roadnode_count);
+                #else
+                fprintf(stdout,"%d\t%d\t%d\t%lf\n" ,
+                    bus_road_arr[i].roadseq ,arr_proad[max_times_roadseq]->roadid, max_times_roadseq  , times*1.0/roadnode_count);
+                #endif
+            }
+
+
+
             free(roadseq_arr);
-            printf("\n");
+            //printf("\n");
 
 
         }
 
 
 
-    }
+    }//end for
+
+    fclose(fout);
 }
 
 void bus_road_match_show()
@@ -261,4 +321,13 @@ static int get_max_times(int * arr ,int len ,int * times)
 
 
 
+}
+
+static double get_distance(int id ,CSlistNode * node)
+{
+    int roadnode_id =( (struct list_t *)(node->value) )->roadnode_id;
+
+    //return get_nearest_dis(id ,bus_road_node_arr[roadnode_id].x ,bus_road_node_arr[roadnode_id].y ,2) ;
+
+    return 0.0;
 }

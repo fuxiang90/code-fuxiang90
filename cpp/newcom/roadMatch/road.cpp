@@ -9,6 +9,7 @@
 #include "head.h"
 
 
+//#define CHOICE
 //创建road数组
 int create_road_arr()
 {
@@ -27,6 +28,9 @@ int init_road(int *pn)  //pn为了传给主调函数记录条数
 	int i=0;                         //记录数初始为0，以后每读一条记录，i 增加 1，最后赋值给(*pn)
     int id, startid, endid;
 	double length;
+	#ifdef CHOICE
+	int roadid;
+	#endif
     arr_p = arr_proad;
 
 	fp = fopen(ROAD_FILE, "r");
@@ -39,7 +43,12 @@ int init_road(int *pn)  //pn为了传给主调函数记录条数
 	while(i < MAX_ROAD)                    //从文件中读取一行，创建一个节点，并给节点赋值
 	{
         // 这次的新文件没有 道路等级这个字段 ，所以 fscanf要改下
+
+        #ifndef CHOICE
 		if(fscanf(fp, "%d%d%d%lf", &id, &startid, &endid, &length) != EOF)//if(fscanf(fp, "%d%d%d%lf%*d", &id, &startid, &endid, &length) != EOF)  //若读到文件结尾则跳出循环
+		#else
+        if(fscanf(fp, "%d%d%d%lf%d", &id, &startid, &endid, &length,&roadid) != EOF)
+		#endif
 		{
 			i++;
 			// id 不存在重复，因此用id作为下标不回出现覆盖的情况，但是这里要求 MAX_ROAD > id，否则会越界
@@ -50,6 +59,10 @@ int init_road(int *pn)  //pn为了传给主调函数记录条数
 		    arr_p[id]->endid = endid;
 			arr_p[id]->child[0] = 0;
 			arr_p[id]->child[1] = 0;
+
+			#ifdef CHOICE
+			arr_p[id]->roadid = roadid;
+			#endif
 		}
 		else         //文件结束直接跳出循环即可，在创建动态数组时，已经初始化为NULL了，不存在出现野指针的情况
 		{

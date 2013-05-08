@@ -4,7 +4,7 @@
 extern int p2seg(double x, double y, const giroadnode *a, const giroadnode *b, double *out_x, double *out_y);
 extern double dis(double x1, double y1, double x2, double y2);
 extern double dis2(const giroadnode *u, const giroadnode *v);
-extern double dis2seg(double x, double y, const giroadnode *u, const giroadnode *v);
+extern double dis2seg(double x, double y, const giroadnode *u, const giroadnode *v ,int flag );
 extern double dis2line(double x, double y, const giroadnode *u, const giroadnode *v);
 extern double get_dis(int start, int end, double x, double y);
 

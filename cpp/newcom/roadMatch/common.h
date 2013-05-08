@@ -1,6 +1,9 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#include "config.h"
+
+//#define CHOICE
 #define MAX_AROUND 10              //一个路口有几条路，双向路算2条
 #define ZONE_CON     10000          //zone的容量
 
@@ -37,11 +40,14 @@ typedef struct road
 	int startid;                //起始节点id
 	int endid;                  //终止节点id
 	int child[2];               //起始的roadnode的id，0为开头1为结束
+#ifdef CHOICE
+	int roadid ;                //合并道路的逻辑id 交换格式特有
+#endif
 }giroad;
 
 //分区
 typedef struct zone
-{                   
+{
     int road[ZONE_CON];             //用于记录本zone中全部的road，下标0里记录road的数目，main中的数组从0开始
 }gizone;
 /***********************************一条路的结构定义************************************/

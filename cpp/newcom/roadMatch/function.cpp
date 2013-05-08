@@ -66,11 +66,17 @@ int p2seg(double x, double y, const giroadnode *a, const giroadnode *b, double *
 }
 
 //点到线段距离
-double dis2seg(double x, double y, const giroadnode *u, const giroadnode *v)
+double dis2seg(double x, double y, const giroadnode *u, const giroadnode *v ,int flag = 1)
 {
 	double out_x, out_y, h;
 	p2seg(x, y, u, v, &out_x, &out_y);
-    h = dis(x, y, out_x, out_y);
+	if(flag == 1)
+        h = dis(x, y, out_x, out_y);
+    else { //计算真实的距离
+        double delta_x = out_x - x;
+        double delta_y = out_y - y;
+        h = sqrt( delta_x*delta_x*PRE_LON*PRE_LON  + delta_y * delta_y*PRE_LAN*PRE_LAN );
+    }
 	return h;
 }
 //点到直线距离，垂线距离

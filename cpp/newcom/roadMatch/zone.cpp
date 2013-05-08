@@ -149,6 +149,10 @@ int get_zone_road(double x, double y)
 	    printf("该点不在本地图范围内\n");
 		exit(-1);
 	}
+	//add by fuxiang
+    if(arr_pzone[index] == NULL){
+        return -1;
+    }
 
     init_near_road();   //将最近的ZONE_NEAR条路初始化
 
@@ -175,6 +179,53 @@ int get_zone_road(double x, double y)
 	}
 	return arr_near_road[1].roadid;
 }
+
+int get_zone_road(double x, double y ,double * min_dist)
+{
+	int i=1;
+	int si;           //用于sort的i
+	double temp;      //临时存放距离
+	int zone_roadid;  //临时存放roadid
+	int index = 50 * (int)((x-rootx)/dx) + (int)((y-rooty)/dy);
+
+	if(index >= ZONE_NUM)
+	{
+	    printf("该点不在本地图范围内\n");
+		exit(-1);
+	}
+	//add by fuxiang
+    if(arr_pzone[index] == NULL){
+        return -1;
+    }
+
+    init_near_road();   //将最近的ZONE_NEAR条路初始化
+
+    while(i<=arr_pzone[index]->road[0])
+	{
+		zone_roadid = arr_pzone[index]->road[i];
+	    temp = get_nearest_dis(zone_roadid, x, y);
+
+		//伪插入排序，将比temp大的road往后移动
+		if(temp<arr_near_road[ZONE_NEAR].dis)
+		{
+		    arr_near_road[0].roadid = zone_roadid;                  //哨兵
+		    arr_near_road[0].dis = temp;
+	        for(si=ZONE_NEAR-1; temp<arr_near_road[si].dis; si--)   //si=0时，肯定会跳出循环
+		    {
+		    	arr_near_road[si+1].roadid = arr_near_road[si].roadid;
+		    	arr_near_road[si+1].dis = arr_near_road[si].dis;
+		    }
+		    arr_near_road[si+1].roadid = arr_near_road[0].roadid;
+		    arr_near_road[si+1].dis = arr_near_road[0].dis;
+		}
+
+		i++;
+	}
+	(*min_dist) = arr_near_road[1].dis * PRE_LON ;
+
+	return arr_near_road[1].roadid;
+}
+
 
 //打印最近的road
 static int print_near_road()

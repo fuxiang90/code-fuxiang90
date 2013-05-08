@@ -19,6 +19,8 @@
 #include <vector>
 
 
+//#define CHOICE 1
+
 // This file  write by fuxiang
 // Thanks Shi Song
 
@@ -39,8 +41,6 @@ struct list_t{
 };
 
 
-
-
 //初始化
 void bus_road_mathch_init();
 //输入
@@ -48,12 +48,9 @@ void bus_road_match_input();
 
 void bus_road_match_show();
 
-
 void bus_road_match_work();
 
 void bus_road_match_free();
-
-
 
 static  void Print(CSlist * l) ;
 
@@ -65,5 +62,8 @@ static int get_max_times(int * arr ,int len,int * times);
 int  int_cmp(const void * a ,const void * b);
 
 void bus_road_match_testmain();
+
+
+static double get_distance(int id ,CSlistNode * node);
 
 #endif // BUSROADMATCH_H_INCLUDED
