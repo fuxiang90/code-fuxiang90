@@ -11,6 +11,9 @@
 
 #include "CArray.h"
 #include "config.h"
+
+#undef  MAX_DIST
+#define MAX_DIST 1000000000.0
 using namespace std;
 
 struct Road_t{
@@ -19,6 +22,7 @@ struct Road_t{
     int end_id;
     int road_seq;
     double length;
+
 };
 typedef struct Road_t Road;
 
@@ -28,6 +32,9 @@ struct Node_t
 
     CArray * road_out ;
     CArray * road_in ;
+
+    int heap_idx;
+
 };
 typedef struct Node_t Node;
 
@@ -46,8 +53,11 @@ void road_release(Road * road_arr , Node *  node_arr);
 void road_show(Road  *road_arr , Node   *node_arr);
 
 int road_get_real_road_count();
+
 int road_get_real_node_count();
 
+//
+void road_update(Road * road_arr , Node *  node_arr  , int * arr ,int len );
 
 //for test
 

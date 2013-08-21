@@ -30,15 +30,22 @@ void road_init(Road * road_arr , Node   *node_arr ,char * filename)
         road_arr[road_seq].start_id = node_start;
         road_arr[road_seq].end_id = node_end;
         road_arr[road_seq].length = 1;
-
-
         CArrayPush ( node_arr[node_start].road_out , &road_seq);
-
-
         CArrayPush ( node_arr[node_end].road_in , &road_seq);
-
         road_seq ++;
         real_road_count ++;
+
+
+        //无向图
+        road_arr[road_seq].road_seq  = road_seq;
+        road_arr[road_seq].start_id = node_end ;
+        road_arr[road_seq].end_id = node_start;
+        road_arr[road_seq].length = 1;
+        CArrayPush ( node_arr[node_end].road_out , &road_seq);
+        CArrayPush ( node_arr[node_start].road_in , &road_seq);
+        road_seq ++;
+        real_road_count ++;
+
 
         if(real_key_node_count < node_start )
             real_key_node_count = node_start;
@@ -49,9 +56,6 @@ void road_init(Road * road_arr , Node   *node_arr ,char * filename)
     for(int i = 0 ; i <= real_key_node_count ; i ++){
         node_arr[i].node_seq = i;
     }
-
-
-
 
     fclose(fin);
     return ;
@@ -105,6 +109,29 @@ void road_show(Road  *road_arr , Node   *node_arr)
         if(node_arr[i].road_out->len )
             printf("%d \n",  road_arr [( ( int *)(node_arr[i].road_out->data) )[0] ].start_id);
 
+    }
+
+}
+
+void road_update(Road * road_arr , Node *  node_arr  , int * arr ,int len )
+{
+    int node_start;
+    int node_end;
+    int road_seq = 0;
+    for(int i = 0 ; i < len -1; i ++){
+        node_start = arr[i];
+        node_end = arr[i+1];
+
+        int road_update_seq = 0;
+        for(unsigned int j = 0 ; j < node_arr[node_start].road_out->len ; j ++){
+            road_seq =( ( int *)(node_arr[node_start].road_out->data) )[j] ;
+            if(road_arr[road_seq].end_id = node_end ){
+                road_update_seq = road_seq ;
+                break ;
+            }
+        }
+        if(road_update_seq)
+            road_arr[road_update_seq].length = MAX_DIST;
     }
 
 }

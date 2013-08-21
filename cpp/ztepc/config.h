@@ -8,6 +8,7 @@
 #include <cmath>
 #include <vector>
 #include <string>
+#include <set>
 
 
 
@@ -16,6 +17,7 @@
 #define  MAX_FILE_NAME_LEN 50
 #define  MAX_TXT_NAME_LEN 20
 
+#define HEAP 1
 #define INPUT_FILE "in"
 
 extern const int MAX_ROAD;

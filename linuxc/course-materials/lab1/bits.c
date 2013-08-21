@@ -231,7 +231,8 @@ int addOK(int x, int y) {
 int bang(int x) {
   //return 2;
 
-  return (~x) || (~y);
+  if ( x ^ 0 == 1) return 1;
+  else return 0;
 }
 // Extra Credit: Rating: 3
 /* 
